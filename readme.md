@@ -1,79 +1,123 @@
-# [NEXUS] - Connect your student life
+# ELMO — Student Clubs & Events Management
 
-> A student governance application for multiple universities.
+ELMO is a web application that enhances digital connectivity among students by helping clubs manage membership, events, finances, tasks, and compliance across multiple universities. It centralizes governance for a parent body (Super Admin) while empowering club officers and members with the tools they need to operate day‑to‑day.
 
-## About
+Status: Hackathon project (active) • Scope aims for an MVP that is demo‑ready.
 
-This project is building a comprehensive student governance application designed to connect students, clubs, and administrators across multiple universities. The goal is to provide a platform for managing student organizations, facilitating proposal submissions and reviews, and gathering feedback to improve student life.
 
-## Features (MVP)
+## Key roles
+- Super Admin (Student Body Admin): Sets policies and approvals, sees everything, and audits activity.
+- Club Manager/Officer: Runs a club within policy limits (members, events, finances, tasks, files, announcements).
+- Club Member: Joins clubs, RSVPs and checks in to events, views files/announcements, and maintains dues status (dummy).
 
-The initial version (MVP) of the application will include the following core features:
 
-*   **Role Management:**
-    *   Super Admin: Manages the overall application and universities.
-    *   Campus Admin: Manages clubs within their specific university.
-    *   User: Students interested in joining clubs and participating in governance processes.
-*   **Club Management:**
-    *   Create clubs (by Campus Admins).
-    *   Propose new clubs (by Users).
-    *   Promote clubs.
-*   **Proposal Management:**
-    *   Submit proposals (by Users and Campus Admins).
-    *   Review proposals (by Admins).
-*   **Feedback:**
-    *   A channel for all users to provide feedback on the application and related activities.
+## Core features (MVP)
+- RBAC and policies
+  - Flexible role‑based access control and policy enforcement at API and Firestore security rules levels.
+  - Super Admin approvals for proposals (events, budgets, purchases, reimbursements) and configurable rules (spending caps, categories, compliance).
+- Club management (multi‑university)
+  - Create/update/archive clubs with members and officers from any university; featured clubs per university/global.
+  - Club details, documents, and file storage per club.
+- Members & attendance
+  - Member CRUD, role assignment, join/approval, manual dues status (no payments), attendance tracking and export.
+- Events & proposals
+  - Event CRUD, RSVP, manual check‑in; single‑stage proposal and approval flow; exports for reporting.
+- Finance
+  - Budgets, expenses with receipt uploads, reimbursements; approval flow; budget vs. spend tracking; exportable summaries.
+- Tasks, roles, and communications
+  - Officer roles, task assignment with deadlines/status, volunteer sign‑ups, in‑app announcements; club file sharing.
+- Governance, policy repository, and reporting
+  - Central policy/document repository, compliance checklist, audit trail of key actions, CSV exports, and an admin dashboard.
 
-## Technology Stack
+See roadmap issues for details:
+- RBAC & Policies: https://github.com/syahmiharith/ELMO/issues/4
+- Club Management: https://github.com/syahmiharith/ELMO/issues/5
+- Member Management & Dues: https://github.com/syahmiharith/ELMO/issues/6
+- Event Management & Proposals: https://github.com/syahmiharith/ELMO/issues/7
+- Finance Management: https://github.com/syahmiharith/ELMO/issues/8
+- Tasks/Roles/Comms: https://github.com/syahmiharith/ELMO/issues/9
+- Governance/Policies/Reporting: https://github.com/syahmiharith/ELMO/issues/10
 
-*   **Frontend:** React
-*   **Backend:** Firebase
-*   **Data Access:** Firebase Data Connect (for interacting with data sources like PostgreSQL via Cloud SQL)
 
-## Install
-To set up the project locally, follow these steps:
+## Tech stack
+- Frontend: React 18 (Create React App)
+- Backend: Firebase Cloud Functions (Node.js) and Firestore
+- Data Access: Firebase Data Connect (dataconnect/ + default connector)
+- Auth: Firebase Authentication
+- Hosting/Infra: Firebase (Hosting, Emulators) and Google Cloud App Hosting (apphosting.yaml)
+- Optional AI: Genkit with Google AI providers
+- Security: Firestore security rules (firestore.rules) and indexes (firestore.indexes.json)
 
-1.  **Clone the repository:**
 
-git clone [syahmiharith/ELMO]
+## Repository layout
+```
+├─ src/                  # React application source
+├─ public/               # Static assets
+├─ functions/            # Firebase Cloud Functions (Node.js)
+├─ nexus-codebase/       # (Optional) Python modules/functions
+├─ dataconnect/          # Firebase Data Connect schema & generated connectors
+├─ firestore.rules       # Firestore security rules
+├─ firestore.indexes.json# Firestore indexes
+├─ firebase.json         # Firebase project config
+├─ apphosting.yaml       # Google Cloud App Hosting configuration
+└─ readme.md
+```
 
-3.  **Install dependencies:**
 
+## Getting started (local)
+Prerequisites
+- Node.js 18+ and npm (or pnpm/yarn)
+- Firebase CLI: npm i -g firebase-tools
+- (Optional) Python 3.10+ if you plan to work in nexus-codebase/
+
+Setup
+1) Clone and install
+```
+git clone https://github.com/syahmiharith/ELMO.git
+cd ELMO
 npm install
-
-
-## Dev
-
-### Run Locally
-
-To run the application locally in development mode:
-
+```
+2) Configure environment variables
+- Create a .env file in the repo root (one may already exist) and add your Firebase project settings.
+- For CRA, client vars should be prefixed with REACT_APP_. Example:
+```
+REACT_APP_FIREBASE_API_KEY=...
+REACT_APP_FIREBASE_AUTH_DOMAIN=...
+REACT_APP_FIREBASE_PROJECT_ID=...
+REACT_APP_FIREBASE_STORAGE_BUCKET=...
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=...
+REACT_APP_FIREBASE_APP_ID=...
+```
+3) Connect Firebase
+```
+firebase login
+firebase use --add <your-project-id>
+```
+4) Run locally
+- Start the React app (if scripts are defined):
+```
 npm start
+```
+- Start Firebase emulators for Functions/Firestore (in another terminal):
+```
+firebase emulators:start
+```
 
-This will start the React development server.
 
-### Build
+## Deployment
+- Firebase Hosting/Functions: follow firebase deploy workflows using firebase.json.
+- Google Cloud App Hosting: apphosting.yaml is provided; see Google Cloud App Hosting docs for apply/deploy steps.
 
-To build the production-ready application:
 
-npm run build
+## Security & compliance
+- Access is governed by RBAC and Firestore security rules.
+- All critical actions are auditable; exports enable reporting and oversight.
 
-This will create a `build` directory (or your configured build output directory) with the optimized production build.
 
-### Test
+## Contributing
+- PRs welcome. Please open an issue to discuss substantial changes or new modules.
+- Keep changes scoped and include basic tests where applicable.
 
-To run the project tests:
 
-npm test
-
-### Deploy
-
-To deploy the application to Firebase:
-
-firebase deploy
-
-You can also deploy specific parts:
-
-firebase deploy --only hosting # Deploy hosting firebase deploy --only functions # Deploy functions
-
----
+## License
+No license specified yet. All rights reserved by the author unless a license is added.
