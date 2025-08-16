@@ -1,3 +1,15 @@
+# Environment variables
+.env
+
+# Dependency directory
 node_modules
-yarn.lock
-/dist
+
+# Build outputs
+build
+dist
+
+# Firebase Data Connect generated SDKs
+dataconnect-generated
+
+# npm debug log
+npm-debug.log

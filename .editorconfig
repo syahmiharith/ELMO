@@ -1,12 +1,60 @@
+# editorconfig.org
+
 root = true
 
 [*]
-indent_style = tab
+# Indentation settings
+indent_style = space
+indent_size = 2
+
+# End of line settings
 end_of_line = lf
+
+# Character set
 charset = utf-8
+
+# Whitespace settings
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.yml]
+# Max line length (optional, but good for readability)
+# max_line_length = 120
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.json]
+indent_style = space
+indent_size = 2
+
+[*.yaml]
+indent_style = space
+indent_size = 2
+
+[*.js]
+indent_style = space
+indent_size = 2
+
+[*.jsx]
+indent_style = space
+indent_size = 2
+
+[*.ts]
+indent_style = space
+indent_size = 2
+
+[*.tsx]
+indent_style = space
+indent_size = 2
+
+[*.css]
+indent_style = space
+indent_size = 2
+
+[*.scss]
+indent_style = space
+indent_size = 2
+
+[*.html]
 indent_style = space
 indent_size = 2

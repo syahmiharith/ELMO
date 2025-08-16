@@ -1,1 +1,39 @@
-* text=auto eol=lf
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Explicitly normalize line endings for common text file types
+*.css text
+*.html text
+*.js text
+*.json text
+*.jsx text
+*.md text
+*.ts text
+*.tsx text
+*.txt text
+*.yaml text
+*.yml text
+
+# Explicitly treat binary files as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.wasm binary
+*.mp4 binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.zip binary
+*.gz binary
+*.tgz binary
+*.tar binary
+*. семи binary
+*.sqlite3 binary

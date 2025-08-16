@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function authed() { return request.auth != null; }
+    function role(uid) {
+      return get(/databases/$(database)/documents/roles/$(uid)).data.role;
+    }
+    function uniIds(uid) {
+      return get(/databases/$(database)/documents/roles/$(uid)).data.uniIds;
+    }
+    function isSuper() { return authed() && role(request.auth.uid) == 'super'; }
+    function isCampus(uniId) {
+      return authed() && role(request.auth.uid) == 'campus' && uniId in uniIds(request.auth.uid);
+    }
+    function isStudent() { return authed() && role(request.auth.uid) == 'student'; }
+
+    // Roles: super admin only edits
+    match /roles/{uid} {
+      allow read: if isSuper() || request.auth.uid == uid;
+      allow write: if isSuper();
+    }
+
+    match /universities/{uniId} {
+      allow read: if authed();
+      allow write: if isSuper();
+    }
+
+    match /users/{uid} {
+      allow read: if authed() && (isSuper() || request.auth.uid == uid);
+      allow write: if authed() && request.auth.uid == uid;
+    }
+
+    match /clubs/{clubId} {
+      allow read: if true;
+      // Create from approved proposal or direct by super/campus
+      allow create: if isSuper()
+        || (isCampus(request.resource.data.uniId)
+            && (
+              // direct create
+              !('createdFromProposalId' in request.resource.data)
+              // or from approved proposal
+              || (
+                ('createdFromProposalId' in request.resource.data) &&
+                get(/databases/$(database)/documents/proposals/$(request.resource.data.createdFromProposalId)).data.status == 'approved' &&
+                get(/databases/$(database)/documents/proposals/$(request.resource.data.createdFromProposalId)).data.uniId
+                  == request.resource.data.uniId
+              )
+            )
+          );
+      allow update: if isSuper() || isCampus(resource.data.uniId);
+      allow delete: if isSuper();
+    }
+
+    match /memberships/{id} {
+      allow read: if true;
+      allow create: if authed() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if authed() && (isSuper() || resource.data.uid == request.auth.uid);
+    }
+
+    match /proposals/{pid} {
+      allow read: if true;
+
+      // Create by any authed student/campus/super
+      allow create: if authed();
+
+      // Enforce state machine
+      function canTransition(before, after, uniId, submittedBy) {
+        return
+          // owner moves draft -> submitted
+          ((submittedBy == request.auth.uid) && before == 'draft' && after == 'submitted') ||
+          // campus admin reviews
+          (isCampus(uniId) && (
+              (before == 'submitted' && after == 'under_review') ||
+              (before == 'under_review' && (after == 'approved' || after == 'rejected'))
+          )) ||
+          // super can do anything
+          isSuper();
+      }
+
+      allow update: if authed()
+        && canTransition(resource.data.status,
+                         request.resource.data.status,
+                         resource.data.uniId,
+                         resource.data.submittedBy);
+      allow delete: if isSuper();
+    }
+
+    match /feedback/{fid} {
+      allow read: if true;
+      allow create: if authed();
+      allow update: if authed() &&
+        (isSuper() ||
+         isCampus(resource.data.uniId) ||
+         resource.data.createdBy == request.auth.uid);
+    }
+
+    match /audit/{id} {
+      allow read: if isSuper();
+      allow write: if false; // write audits from client only if you must; otherwise skip
+    }
+  }
+}
