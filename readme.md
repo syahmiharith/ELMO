@@ -1,42 +1,79 @@
-# NEXUS - Connect your student life
+# [NEXUS] - Connect your student life
 
-> The best app ever
+> A student governance application for multiple universities.
+
+## About
+
+This project is building a comprehensive student governance application designed to connect students, clubs, and administrators across multiple universities. The goal is to provide a platform for managing student organizations, facilitating proposal submissions and reviews, and gathering feedback to improve student life.
+
+## Features (MVP)
+
+The initial version (MVP) of the application will include the following core features:
+
+*   **Role Management:**
+    *   Super Admin: Manages the overall application and universities.
+    *   Campus Admin: Manages clubs within their specific university.
+    *   User: Students interested in joining clubs and participating in governance processes.
+*   **Club Management:**
+    *   Create clubs (by Campus Admins).
+    *   Propose new clubs (by Users).
+    *   Promote clubs.
+*   **Proposal Management:**
+    *   Submit proposals (by Users and Campus Admins).
+    *   Review proposals (by Admins).
+*   **Feedback:**
+    *   A channel for all users to provide feedback on the application and related activities.
+
+## Technology Stack
+
+*   **Frontend:** React
+*   **Backend:** Firebase
+*   **Data Access:** Firebase Data Connect (for interacting with data sources like PostgreSQL via Cloud SQL)
 
 ## Install
+To set up the project locally, follow these steps:
 
-*macOS 10.13+, Linux, and Windows 7+ are supported (64-bit only).*
+1.  **Clone the repository:**
 
-**macOS**
+git clone [syahmiharith/ELMO]
 
-[**Download**](https://github.com/user/repo/releases/latest) the `.dmg` file.
+3.  **Install dependencies:**
 
-**Linux**
+npm install
 
-[**Download**](https://github.com/user/repo/releases/latest) the `.AppImage` or `.deb` file.
-
-*The AppImage needs to be [made executable](http://discourse.appimage.org/t/how-to-make-an-appimage-executable/80) after download.*
-
-**Windows**
-
-[**Download**](https://github.com/user/repo/releases/latest) the `.exe` file.
-
----
 
 ## Dev
 
-Built with [Electron](https://electronjs.org).
+### Run Locally
 
-### Run
+To run the application locally in development mode:
 
-```sh
-npm install
 npm start
-```
 
-### Publish
+This will start the React development server.
 
-```sh
-npm run release
-```
+### Build
 
-After Travis finishes building your app, open the release draft it created and click "Publish".
+To build the production-ready application:
+
+npm run build
+
+This will create a `build` directory (or your configured build output directory) with the optimized production build.
+
+### Test
+
+To run the project tests:
+
+npm test
+
+### Deploy
+
+To deploy the application to Firebase:
+
+firebase deploy
+
+You can also deploy specific parts:
+
+firebase deploy --only hosting # Deploy hosting firebase deploy --only functions # Deploy functions
+
+---

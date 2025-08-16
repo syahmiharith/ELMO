@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "y"
+location: "asia-southeast1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "nexus"
+      cloudSql:
+        instanceId: "nexus"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

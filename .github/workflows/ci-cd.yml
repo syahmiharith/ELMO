@@ -1,0 +1,48 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '21' 
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build # Assuming you have a build script in package.json
+
+      - name: Test
+        run: npm run test # Assuming you have a test script in package.json
+
+      - name: Deploy to Firebase Hosting (on push to main)
+        if: github.event_name == 'push' and github.ref == 'refs/heads/main'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ELMO_D723D }}'
+          channelId: live
+          projectId: elmo-d723d
+
+      - name: Deploy to Firebase Hosting (on pull request)
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ELMO_D723D }}'
+          projectId: elmo-d723d

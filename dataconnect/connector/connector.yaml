@@ -1,0 +1,25 @@
+connectorId: default
+generate:
+  javascriptSdk:
+    outputDir: ../../dataconnect-generated/js/default-connector
+    package: "@firebasegen/default-connector"
+    packageJsonDir: ../..
+    react: true
+queries:
+  listUsers:
+    sql: SELECT * FROM users
+  listClubs:
+    sql: SELECT * FROM clubs
+  listMemberships:
+    sql: SELECT * FROM memberships
+  listFeedback:
+    sql: SELECT * FROM feedback
+mutations:
+  createClub:
+    sql: INSERT INTO clubs (name, universityId, description, createdAt, adminId,
+      contactEmail, websiteUrl) VALUES ($name, $universityId, $description,
+      $createdAt, $adminId, $contactEmail, $websiteUrl) RETURNING *
+  createProposal:
+    sql: INSERT INTO proposals (userId, clubId, title, description, createdAt)
+      VALUES ($userId, $clubId, $title, $description, $createdAt) RETURNING *
+    react: true
