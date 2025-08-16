@@ -10,7 +10,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "firebase": "^9.23.0"
+    "firebase": "^12.1.0"
   },
   "name": "elmo-project",
   "version": "1.0.0",
