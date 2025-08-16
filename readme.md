@@ -78,15 +78,11 @@ cd ELMO
 npm install
 ```
 2) Configure environment variables
-- Create a .env file in the repo root (one may already exist) and add your Firebase project settings.
-- For CRA, client vars should be prefixed with REACT_APP_. Example:
-```
-REACT_APP_FIREBASE_API_KEY=...
-REACT_APP_FIREBASE_AUTH_DOMAIN=...
-REACT_APP_FIREBASE_PROJECT_ID=...
-REACT_APP_FIREBASE_STORAGE_BUCKET=...
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=...
-REACT_APP_FIREBASE_APP_ID=...
+- Copy `.env.example` to `.env` in the repo root and add your Firebase project settings.
+- Replace all placeholder values with your actual Firebase configuration:
+```bash
+cp .env.example .env
+# Edit .env with your Firebase project values
 ```
 3) Connect Firebase
 ```
