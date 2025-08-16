@@ -1,14 +1,12 @@
 {
-	"name": "app-name",
-	"productName": "App Name",
-	"version": "0.0.0",
+	"name": "ELMO",
+	"productName": "Nexus",
+	"version": "0.0.1",
 	"description": "The best app ever",
-	"license": "MIT",
-	"repository": "sindresorhus/electron-boilerplate",
+	"repository": "syahmiharith/ELMO",
 	"author": {
-		"name": "Your Name",
-		"email": "user@gmail.com",
-		"url": "https://sindresorhus.com"
+		"name": "Syahmi",
+		"email": "zsyhmizlkfli12@gmail.com",
 	},
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps",
