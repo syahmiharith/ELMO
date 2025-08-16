@@ -1,12 +1,12 @@
 {
-	"name": "ELMO",
+	"name": "nexus",
 	"productName": "Nexus",
 	"version": "0.0.1",
 	"description": "The best app ever",
 	"repository": "syahmiharith/ELMO",
 	"author": {
 		"name": "Syahmi",
-		"email": "zsyhmizlkfli12@gmail.com",
+		"email": "zsyhmizlkfli12@gmail.com"
 	},
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps",
