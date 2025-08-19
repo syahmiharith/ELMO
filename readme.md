@@ -22,11 +22,11 @@ Status: Hackathon project (active) • Scope aims for an MVP that is demo‑read
   - Member CRUD, role assignment, join/approval, manual dues status (no payments), attendance tracking and export.
 - Events & proposals
   - Event CRUD, RSVP, manual check‑in; single‑stage proposal and approval flow; exports for reporting.
-- Finance
+- Finance (WIP)
   - Budgets, expenses with receipt uploads, reimbursements; approval flow; budget vs. spend tracking; exportable summaries.
-- Tasks, roles, and communications
+- Tasks, roles, and communications (WIP)
   - Officer roles, task assignment with deadlines/status, volunteer sign‑ups, in‑app announcements; club file sharing.
-- Governance, policy repository, and reporting
+- Governance, policy repository, and reporting (WIP)
   - Central policy/document repository, compliance checklist, audit trail of key actions, CSV exports, and an admin dashboard.
 
 See roadmap issues for details:
