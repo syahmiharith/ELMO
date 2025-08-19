@@ -220,6 +220,9 @@ jobs:
 
   notify:
     name: Notify Deployment Status
+    permissions:
+      issues: write
+      contents: read
     runs-on: ubuntu-latest
     needs: [deploy-production]
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
