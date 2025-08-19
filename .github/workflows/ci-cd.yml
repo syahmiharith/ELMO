@@ -121,7 +121,7 @@ jobs:
           npm test || echo "No tests in functions directory"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: |
