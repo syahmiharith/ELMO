@@ -1,5 +1,5 @@
 
-import type { EventDetail } from './types';
+import { EventDetail } from '@elmo/shared-types';
 
 export const eventDetails: Record<string, EventDetail> = {
     'event-1': {
@@ -52,3 +52,4 @@ export const eventDetails: Record<string, EventDetail> = {
         tags: ['Robotics', 'Hackathon', 'Engineering', 'Free Hardware'],
     },
 };
+

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MemberList } from "@/components/members/member-list";
 import { FileManager } from "@/components/files/file-manager";
-import type { Club } from "@/lib/types";
+import { Club } from '@elmo/shared-types';
 import { useAuth } from "@/hooks/use-auth";
 import { Check, Star, UserPlus, Edit } from "lucide-react";
 import { ClubAnnouncements } from "./club-announcements";
@@ -132,3 +132,4 @@ export function ClubDetailPage({ club }: { club: Club }) {
         </div>
     );
 }
+

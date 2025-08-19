@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Ticket, Building2, ArrowRight } from 'lucide-react';
-import type { ClubEvent, Club } from '@/lib/types';
+import { ClubEvent, Club } from '@elmo/shared-types';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
@@ -63,3 +63,4 @@ export function EventCard({ event, club }: EventCardProps) {
         </Card>
     );
 }
+

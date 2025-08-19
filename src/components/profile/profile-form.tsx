@@ -4,7 +4,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { User } from "@/lib/types";
+import { User } from '@elmo/shared-types';
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
@@ -129,3 +129,4 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </FormProvider>
     );
 }
+

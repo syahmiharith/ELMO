@@ -1,7 +1,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import type { Club, ClubEvent, User, ApprovalRequest } from '@/lib/types';
+import { Club, ClubEvent, User, ApprovalRequest } from '@elmo/shared-types';
 
 /**
  * Fetches a single user document from Firestore by their ID.
@@ -106,3 +106,4 @@ export async function getPendingApprovalRequests(): Promise<ApprovalRequest[]> {
 
     return requests;
 }
+

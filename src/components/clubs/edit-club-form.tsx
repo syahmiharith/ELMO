@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { UploadCloud, Save, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Club } from "@/lib/types";
+import { Club } from '@elmo/shared-types';
 import { Separator } from "@/components/ui/separator";
 
 // Schema for fields editable by a club manager
@@ -209,4 +209,5 @@ export function EditClubForm({ club }: EditClubFormProps) {
         </FormProvider>
     );
 }
+
 

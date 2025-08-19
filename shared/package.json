@@ -1,0 +1,21 @@
+{
+    "name": "@elmo/shared-types",
+    "version": "1.0.0",
+    "description": "Shared TypeScript types for ELMO application",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "prepublishOnly": "npm run build"
+    },
+    "files": [
+        "dist/**/*"
+    ],
+    "peerDependencies": {
+        "firebase-admin": "^11.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "firebase-admin": "^11.0.0"
+    }
+}

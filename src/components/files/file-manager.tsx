@@ -26,7 +26,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { ClubDocument } from "@/lib/types";
+import { ClubDocument } from '@elmo/shared-types';
 
 interface FileManagerProps {
     clubId: string;
@@ -137,3 +137,4 @@ export function FileManager({ clubId }: FileManagerProps) {
         </div>
     );
 }
+

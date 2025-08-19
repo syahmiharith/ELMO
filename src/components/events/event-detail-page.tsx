@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Club, ClubEvent, EventDetail } from "@/lib/types";
+import { Club, ClubEvent, EventDetail } from '@elmo/shared-types';
 import { format, isToday, isFuture, isPast } from "date-fns";
 import { Calendar, MapPin, Ticket, Tag, QrCode, Upload, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -252,4 +252,5 @@ export function EventDetailPage({ event, club, details }: EventDetailPageProps) 
         </div>
     );
 }
+
 

@@ -11,7 +11,7 @@ import { useState, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ClubCard } from "../clubs/club-card";
 import { format } from "date-fns";
-import type { Club, ClubEvent } from "@/lib/types";
+import { Club, ClubEvent } from '@elmo/shared-types';
 import { clubs as mockClubs, events as mockEvents } from "@/lib/mock-data";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -213,3 +213,4 @@ export function MemberDashboard() {
         </div>
     );
 }
+

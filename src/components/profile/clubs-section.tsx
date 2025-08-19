@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { clubs } from "@/lib/mock-data";
-import type { Membership } from "@/lib/types";
+import { Membership } from '@elmo/shared-types';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, MoreVertical, ExternalLink } from "lucide-react";
@@ -117,3 +117,4 @@ export function ClubsSection({ memberships }: ClubsSectionProps) {
         </Card>
     );
 }
+

@@ -2,7 +2,7 @@
 // In a real application, this code would run in a secure server environment
 // using the Firebase Admin SDK, not in the client
 
-import { Role } from "./types";
+import { Role } from '@elmo/shared-types';
 
 /**
  * Sets appropriate Firebase custom claims for a user based on their role and permissions
@@ -116,3 +116,4 @@ function sendTokenRefreshEmail(email: string) {
     // asking them to refresh their session
     console.log(`Sending token refresh email to ${email}`);
 }
+

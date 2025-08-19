@@ -6,7 +6,7 @@ import { Users, UserPlus, CalendarPlus, DollarSign, FileText, Check, X, Calendar
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect, useMemo } from "react";
-import type { User, Club, ClubEvent, ApprovalRequest } from "@/lib/types";
+import { User, Club, ClubEvent, ApprovalRequest } from '@elmo/shared-types';
 import { mockUsers, clubs, events, approvalRequests as mockApprovalRequests } from "@/lib/mock-data";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -249,4 +249,5 @@ function DashboardSkeleton() {
         </div>
     )
 }
+
 

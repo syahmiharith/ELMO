@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Club } from '@/lib/types';
+import { Club } from '@elmo/shared-types';
 import { ArrowRight, Star } from 'lucide-react';
 
 interface ClubCardProps {
@@ -47,3 +47,4 @@ export function ClubCard({ club }: ClubCardProps) {
         </Card>
     );
 }
+

@@ -54,6 +54,7 @@ See roadmap issues for details:
 ├─ src/                  # React application source
 ├─ public/               # Static assets
 ├─ functions/            # Firebase Cloud Functions (Node.js)
+├─ shared/               # Shared TypeScript types for frontend and backend
 ├─ nexus-codebase/       # (Optional) Python modules/functions
 ├─ dataconnect/          # Firebase Data Connect schema & generated connectors
 ├─ firestore.rules       # Firestore security rules
@@ -89,7 +90,16 @@ cp .env.example .env
 firebase login
 firebase use --add <your-project-id>
 ```
-4) Run locally
+4) Initialize shared types
+```
+# On Windows
+.\setup-shared-types.ps1
+
+# On Unix/Mac
+./setup-shared-types.sh
+```
+
+5) Run locally
 - Start the React app (if scripts are defined):
 ```
 npm start

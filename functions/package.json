@@ -15,6 +15,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@elmo/shared-types": "1.0.0",
     "@types/crypto-js": "^4.2.2",
     "crypto-js": "^4.2.0",
     "firebase-admin": "^12.6.0",

@@ -1,7 +1,10 @@
 {
-  "name": "nextn",
+  "name": "elmo",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "shared"
+  ],
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
@@ -9,9 +12,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "shared:build": "cd shared && npm run build"
   },
   "dependencies": {
+    "@elmo/shared-types": "1.0.0",
     "@genkit-ai/googleai": "^1.14.1",
     "@genkit-ai/next": "^1.14.1",
     "@hookform/resolvers": "^4.1.3",

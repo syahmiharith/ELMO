@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { ClubAnnouncement } from "@/lib/types";
+import { ClubAnnouncement } from '@elmo/shared-types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, UserCircle } from "lucide-react";
@@ -51,3 +51,4 @@ export function ClubAnnouncements({ announcements, canManage }: ClubAnnouncement
         </div>
     );
 }
+

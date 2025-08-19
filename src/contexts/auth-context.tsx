@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from "react";
-import type { User, Role } from "@/lib/types";
+import { User, Role } from '@elmo/shared-types';
 import { mockUsers } from "@/lib/mock-data";
 import { useRouter } from "next/navigation";
 import type { User as FirebaseUser } from "firebase/auth";
@@ -133,3 +133,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+

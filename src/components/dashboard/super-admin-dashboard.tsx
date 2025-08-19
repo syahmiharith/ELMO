@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, CheckCircle, Clock } from "lucide-react";
-import type { ApprovalRequest } from "@/lib/types";
+import { ApprovalRequest } from '@elmo/shared-types';
 import { useToast } from "@/hooks/use-toast";
 import { clubs, mockUsers, approvalRequests as mockApprovalRequests } from "@/lib/mock-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -126,3 +126,4 @@ export function SuperAdminDashboard() {
         </div>
     );
 }
+

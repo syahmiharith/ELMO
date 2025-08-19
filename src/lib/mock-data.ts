@@ -1,5 +1,5 @@
 
-import type { University, Club, User, ClubDocument, ApprovalRequest, InterestTag, ClubEvent, ClubAnnouncement, Membership } from './types';
+import { University, Club, User, ClubDocument, ApprovalRequest, InterestTag, ClubEvent, ClubAnnouncement, Membership } from '@elmo/shared-types';
 
 export const universities: University[] = [
     { id: 'uni-1', name: 'State University', code: 'SU', createdAt: Date.now(), updatedAt: Date.now() },
@@ -399,3 +399,4 @@ clubs.forEach(club => {
     (club as any).memberIds = memberships.filter(m => m.clubId === club.id && m.status === 'approved').map(m => m.userId);
     (club as any).managerIds = memberships.filter(m => m.clubId === club.id && m.status === 'approved' && (m.role === 'officer' || m.role === 'owner')).map(m => m.userId);
 });
+

@@ -24,7 +24,7 @@ import { mockUsers } from "@/lib/mock-data";
 import { useAuth } from "@/hooks/use-auth";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import type { User, Membership } from "@/lib/types";
+import { User, Membership } from '@elmo/shared-types';
 
 interface MemberListProps {
     clubId: string;
@@ -49,7 +49,7 @@ export function MemberList({ clubId }: MemberListProps) {
     const isCurrentUserOwner = currentUserMembership?.role === 'owner';
 
 
-    const getDuesBadgeVariant = (status: string) => {
+    const getDuesBadgeVariant = (status: string | undefined) => {
         switch (status) {
             case 'paid': return 'default';
             case 'unpaid': return 'destructive';
@@ -159,3 +159,4 @@ export function MemberList({ clubId }: MemberListProps) {
         </div>
     );
 }
+

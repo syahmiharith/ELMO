@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { universities } from "@/lib/mock-data";
-import type { User } from "@/lib/types";
+import { User } from '@elmo/shared-types';
 import { Lock, Check, ChevronsUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -149,3 +149,4 @@ export function UniversitySection({ user }: UniversitySectionProps) {
         </Card>
     );
 }
+

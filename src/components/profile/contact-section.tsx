@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface ContactSectionProps {
-    email: string;
+    email: string | undefined;
 }
 
 export function ContactSection({ email }: ContactSectionProps) {

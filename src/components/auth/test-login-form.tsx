@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import type { Role } from "@/lib/types";
+import { Role } from '@elmo/shared-types';
 
 
 export function TestLoginForm() {
@@ -69,3 +69,4 @@ export function TestLoginForm() {
         </Card>
     );
 }
+
