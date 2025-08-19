@@ -1,23 +1,21 @@
-import { useAuth } from "@/hooks/use-auth";
+"use client";
+import { redirect } from "next/navigation";
 import { SuperAdminDashboard } from "@/components/dashboard/super-admin-dashboard";
 import { ClubManagerDashboard } from "@/components/dashboard/club-manager-dashboard";
 import { MemberDashboard } from "@/components/dashboard/member-dashboard";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardPage() {
-    const { role } = useAuth();
+    const { claims, loading, user } = useAuth();
 
-    const renderDashboard = () => {
-        switch (role) {
-            case "superAdmin":
-                return <SuperAdminDashboard />;
-            case "clubManager":
-                return <ClubManagerDashboard />;
-            case "member":
-                return <MemberDashboard />;
-            default:
-                return <div>Loading dashboard...</div>;
-        }
-    };
+    if (loading) return <div>Loading dashboard…</div>;
+    if (!user) redirect("/login");
 
-    return <div className="w-full">{renderDashboard()}</div>;
+    // Check claims directly instead of using role string
+    const isSuper = !!claims?.superAdmin;
+    const isOfficer = claims?.officerOfClub && Object.keys(claims.officerOfClub).length > 0;
+
+    if (isSuper) return <SuperAdminDashboard />;
+    if (isOfficer) return <ClubManagerDashboard />;
+    return <MemberDashboard />;
 }
