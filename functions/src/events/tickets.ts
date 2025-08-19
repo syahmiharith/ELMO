@@ -13,6 +13,8 @@ import { FirestoreEvent, Change, QueryDocumentSnapshot } from "firebase-function
 import { createAuditLogInTransaction } from "../utils/audit";
 interface OrderPathParams { orderId: string }
 
+// Used by createAuditLogInTransaction
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface AuditLog {
     actorId: string;
     action: string;

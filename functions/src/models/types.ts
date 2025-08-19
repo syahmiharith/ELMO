@@ -48,6 +48,13 @@ export interface MembershipDoc {
     duesStatus?: string;
     banned?: boolean;
     joinedAt?: FieldValue;
+    message?: string | null;
+    approvedAt?: FieldValue;
+    approvedBy?: string;
+    rejectedAt?: FieldValue;
+    rejectedBy?: string;
+    rejectionReason?: string | null;
+    archivedAt?: FieldValue;
 }
 
 // Event-related types
@@ -78,6 +85,7 @@ export interface TicketType {
     currency?: string;
     capacity?: number | null;
     sold?: number;
+    limit?: number;  // Alternative name for capacity in some contexts
 }
 
 // RSVP-related types
@@ -86,34 +94,50 @@ export interface RsvpDoc {
     userId: string;
     status: string;
     createdAt: FieldValue;
+    canceledAt?: FieldValue;
 }
 
 // Order-related types
+export type OrderStatus = 'pending' | 'awaiting_review' | 'approved' | 'rejected' | 'canceled';
+
 export interface OrderDoc {
     eventId: string;
     userId: string;
+    clubId: string;
     ticketTypeId?: string | null;
+    ticketTypeName?: string;
+    quantity?: number;
+    pricePerTicket?: number;
+    totalPrice?: number;
     amount?: number;
     currency?: string;
-    method: string;
+    method?: string;
     status: string;
+    notes?: string;
     reference?: string;
     receiptUrl?: string;
     createdAt: FieldValue;
+    updatedAt?: FieldValue;
     reviewedBy?: string;
     reviewedAt?: FieldValue;
     rejectedReason?: string;
+    ticketIds?: string[];
 }
 
 // Ticket-related types
 export interface TicketDoc {
     orderId: string;
     eventId: string;
+    clubId: string;
     userId: string;
     ticketTypeId: string | null;
-    qrCode: string;
+    ticketTypeName?: string;
+    qrCode?: string;
     status: string;
-    issuedAt: FieldValue;
+    issuedAt?: FieldValue;
+    createdAt?: FieldValue;
+    checkedInAt?: FieldValue;
+    checkedInBy?: string;
 }
 
 // Approval request types
@@ -157,6 +181,9 @@ export interface AuditFields {
     updatedAt?: FieldValue;
     createdBy?: string;
     lastEditedBy?: string;
+    canceledAt?: FieldValue;
+    canceledBy?: string;
+    cancelReason?: string;
 }
 
 // Custom claims
