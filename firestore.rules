@@ -1,102 +1,121 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ---- Helpers ----
     function authed() { return request.auth != null; }
-    function role(uid) {
-      return get(/databases/$(database)/documents/roles/$(uid)).data.role;
+    function isSuperAdmin() { return authed() && request.auth.token.superAdmin == true; }
+    function isOfficer(clubId) {
+      return authed() && request.auth.token.officerOfClub[clubId] == true;
     }
-    function uniIds(uid) {
-      return get(/databases/$(database)/documents/roles/$(uid)).data.uniIds;
-    }
-    function isSuper() { return authed() && role(request.auth.uid) == 'super'; }
-    function isCampus(uniId) {
-      return authed() && role(request.auth.uid) == 'campus' && uniId in uniIds(request.auth.uid);
-    }
-    function isStudent() { return authed() && role(request.auth.uid) == 'student'; }
+    function isSelf(uid) { return authed() && request.auth.uid == uid; }
 
-    // Roles: super admin only edits
-    match /roles/{uid} {
-      allow read: if isSuper() || request.auth.uid == uid;
-      allow write: if isSuper();
-    }
-
-    match /universities/{uniId} {
-      allow read: if authed();
-      allow write: if isSuper();
-    }
-
+    // ---- USERS ----
     match /users/{uid} {
-      allow read: if authed() && (isSuper() || request.auth.uid == uid);
-      allow write: if authed() && request.auth.uid == uid;
+      allow read: if authed();
+      allow create: if isSelf(uid);
+      // Allow only user-editable fields to change
+      allow update: if isSelf(uid) &&
+        request.resource.data.diff(resource.data).changedKeys()
+          .hasOnly([
+            'displayName','photoURL','timezone','preferredLanguage',
+            'contact','visibility','handles','interests','consents'
+          ]);
+      allow delete: if false;
     }
 
+    // ---- CLUBS ----
     match /clubs/{clubId} {
-      allow read: if true;
-      // Create from approved proposal or direct by super/campus
-      allow create: if isSuper()
-        || (isCampus(request.resource.data.uniId)
-            && (
-              // direct create
-              !('createdFromProposalId' in request.resource.data)
-              // or from approved proposal
-              || (
-                ('createdFromProposalId' in request.resource.data) &&
-                get(/databases/$(database)/documents/proposals/$(request.resource.data.createdFromProposalId)).data.status == 'approved' &&
-                get(/databases/$(database)/documents/proposals/$(request.resource.data.createdFromProposalId)).data.uniId
-                  == request.resource.data.uniId
-              )
-            )
-          );
-      allow update: if isSuper() || isCampus(resource.data.uniId);
-      allow delete: if isSuper();
+      allow read: if authed() && resource.data.isApproved == true;
+      allow create: if isSuperAdmin();
+      allow update: if isSuperAdmin() || isOfficer(clubId);
+      allow delete: if isSuperAdmin();
     }
 
-    match /memberships/{id} {
-      allow read: if true;
-      allow create: if authed() && request.resource.data.uid == request.auth.uid;
-      allow update, delete: if authed() && (isSuper() || resource.data.uid == request.auth.uid);
+    // ---- MEMBERSHIPS (recommended) ----
+    match /memberships/{mid} {
+      allow read: if authed();
+      // user can create own pending membership (join request)
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+      // updates by super admin, club officer, or the member themselves (limited)
+      allow update: if authed() && (
+        isSuperAdmin() ||
+        isOfficer(resource.data.clubId) ||
+        (request.auth.uid == resource.data.userId &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']) &&
+          request.resource.data.status in ['canceled','archived'])
+      );
+      allow delete: if false;
     }
 
-    match /proposals/{pid} {
-      allow read: if true;
+    // ---- EVENTS ----
+    match /events/{eventId} {
+      // Visibility: public OR campus (any overlap) OR member/officer/admin
+      allow read: if authed() && (
+        resource.data.visibility == 'public' ||
+        (
+          resource.data.visibility == 'campus' &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid))
+            .data.universityIds.hasAny(resource.data.allowedUniversities)
+        ) ||
+        isOfficer(resource.data.clubId) || isSuperAdmin()
+      );
 
-      // Create by any authed student/campus/super
-      allow create: if authed();
-
-      // Enforce state machine
-      function canTransition(before, after, uniId, submittedBy) {
-        return
-          // owner moves draft -> submitted
-          ((submittedBy == request.auth.uid) && before == 'draft' && after == 'submitted') ||
-          // campus admin reviews
-          (isCampus(uniId) && (
-              (before == 'submitted' && after == 'under_review') ||
-              (before == 'under_review' && (after == 'approved' || after == 'rejected'))
-          )) ||
-          // super can do anything
-          isSuper();
-      }
-
-      allow update: if authed()
-        && canTransition(resource.data.status,
-                         request.resource.data.status,
-                         resource.data.uniId,
-                         resource.data.submittedBy);
-      allow delete: if isSuper();
+      allow create: if authed() && isOfficer(request.resource.data.clubId);
+      allow update: if isSuperAdmin() || isOfficer(resource.data.clubId);
+      allow delete: if isSuperAdmin() || isOfficer(resource.data.clubId);
     }
 
-    match /feedback/{fid} {
-      allow read: if true;
-      allow create: if authed();
+    // ---- RSVPS ----
+    match /rsvps/{rid} {
+      allow read: if authed();
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+      // user can cancel own RSVP only
       allow update: if authed() &&
-        (isSuper() ||
-         isCampus(resource.data.uniId) ||
-         resource.data.createdBy == request.auth.uid);
+        request.auth.uid == resource.data.userId &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']);
+      allow delete: if false;
     }
 
-    match /audit/{id} {
-      allow read: if isSuper();
-      allow write: if false; // write audits from client only if you must; otherwise skip
+    // ---- ORDERS (external payments) ----
+    match /orders/{oid} {
+      allow read: if authed() && (
+        request.auth.uid == resource.data.userId || isSuperAdmin() ||
+        // Officer of the event's club can read
+        isOfficer(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.clubId)
+      );
+
+      // user can create only for self
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+
+      // user: attach receipt + set pending_review; officer/admin: set paid/rejected
+      allow update: if authed() && (
+        (
+          request.auth.uid == resource.data.userId &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['receiptUrl','reference','status']) &&
+          request.resource.data.status == 'pending_review'
+        ) ||
+        isSuperAdmin() ||
+        isOfficer(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.clubId)
+      );
+
+      allow delete: if false;
+    }
+
+    // ---- TICKETS ----
+    match /tickets/{tid} {
+      allow read: if authed() && (
+        request.auth.uid == resource.data.userId || isSuperAdmin()
+      );
+      allow create, update, delete: if false; // admin SDK/CF only
+    }
+
+    // ---- CLUB FILES (metadata) ----
+    match /clubFiles/{fid} {
+      allow read: if authed();
+      allow create, update: if isSuperAdmin() ||
+        isOfficer(request.resource.data.clubId);
+      allow delete: if isSuperAdmin() || isOfficer(resource.data.clubId);
     }
   }
 }

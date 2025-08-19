@@ -1,0 +1,80 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ==== Helpers (use custom claims) ====
+    function authed() { return request.auth != null; }
+    function isSuperAdmin() { return authed() && request.auth.token.superAdmin == true; }
+    function isOfficer(clubId) { return authed() && request.auth.token.officerOfClub[clubId] == true; }
+    function isMember(clubId) { return authed() && request.auth.token.memberOfClub[clubId] == true; }
+
+    // =========================
+    // User profile photos
+    // Path: userPhotos/{uid}/{filename}
+    // =========================
+    match /userPhotos/{uid}/{file=**} {
+      // Public read OK. Tighten if needed.
+      allow read: if true;
+      // Only owner can write their photo
+      allow write: if authed() && request.auth.uid == uid;
+    }
+
+    // =========================
+    // Club files (constitutions, minutes, resources)
+    // Path: clubFiles/{clubId}/{filename}
+    // Require client to set custom metadata:
+    //   visibility = "public" | "member" | "officer"
+    // =========================
+    match /clubFiles/{clubId}/{file=**} {
+      // READ
+      allow read: if
+        // Public files
+        (resource != null && resource.metadata.visibility == 'public') ||
+        // Members-only
+        (resource != null && resource.metadata.visibility == 'member' && (isMember(clubId) || isOfficer(clubId) || isSuperAdmin())) ||
+        // Officer-only
+        (resource != null && resource.metadata.visibility == 'officer' && (isOfficer(clubId) || isSuperAdmin()));
+
+      // WRITE (upload/replace/delete) → officers or super admin
+      allow write: if isOfficer(clubId) || isSuperAdmin();
+
+      // Optional: on upload, validate metadata
+      allow create: if (isOfficer(clubId) || isSuperAdmin())
+        && request.resource.metadata.keys().hasAll(['visibility'])
+        && request.resource.metadata.visibility in ['public','member','officer'];
+      allow update, delete: if isOfficer(clubId) || isSuperAdmin();
+    }
+
+    // =========================
+    // Payment receipts (manual payments, Option 2)
+    // Path: receipts/{userId}/{orderId}/{filename}
+    // Require client to set custom metadata on upload:
+    //   userId = uploader's uid
+    //   eventId = event the order belongs to
+    // =========================
+    match /receipts/{userId}/{orderId}/{file=**} {
+      // Owner can read; super admin can read; event's officers can read
+      allow read: if authed() && (
+        request.auth.uid == userId ||
+        isSuperAdmin() ||
+        // Officer of the event's club; look up event → clubId
+        (
+          resource != null &&
+          isOfficer(get(/databases/(default)/documents/events/$(resource.metadata.eventId)).data.clubId)
+        )
+      );
+
+      // Owner can upload only to their own folder; enforce metadata.userId
+      allow create: if authed() &&
+        request.auth.uid == userId &&
+        request.resource.metadata.userId == userId &&
+        request.resource.metadata.eventId is string;
+
+      // No updates by users; delete allowed by super admin or event officers
+      allow update: if false;
+      allow delete: if isSuperAdmin() ||
+        (resource != null &&
+         isOfficer(get(/databases/(default)/documents/events/$(resource.metadata.eventId)).data.clubId));
+    }
+  }
+}
