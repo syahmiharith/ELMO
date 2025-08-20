@@ -1,455 +1,256 @@
 
-import { University, Club, User, ClubDocument, ApprovalRequest, InterestTag, ClubEvent, ClubAnnouncement, Membership, EventDetail } from '@elmo/shared-types';
+/**
+ * @file This file contains mock data for local development.
+ * It is the single source of truth for all placeholder content.
+ */
+import type { Club, Event, Order, Ticket, User, Membership } from '@/types/domain';
 
-export const universities: University[] = [
-    { id: 'uni-1', name: 'State University', code: 'SU', createdAt: Date.now(), updatedAt: Date.now() },
-    { id: 'uni-2', name: 'Metropolis University', code: 'MU', createdAt: Date.now(), updatedAt: Date.now() },
-    { id: 'uni-3', name: 'Tech Institute', code: 'TI', createdAt: Date.now(), updatedAt: Date.now() },
-];
-
-export const interestTags: InterestTag[] = [
-    { id: 'robotics', name: 'Robotics', synonyms: ['bots'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'ai', name: 'Artificial Intelligence', synonyms: ['machine learning', 'ml'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'esports', name: 'E-Sports', synonyms: ['gaming', 'competitive gaming'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'writing', name: 'Creative Writing', synonyms: ['poetry', 'fiction'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'debate', name: 'Debate', synonyms: ['public speaking'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'photography', name: 'Photography', synonyms: ['photo'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'music', name: 'Music', synonyms: ['band', 'orchestra', 'choir'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'volunteering', name: 'Volunteering', synonyms: ['community service'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'entrepreneurship', name: 'Entrepreneurship', synonyms: ['startups', 'business'], active: true, lang: 'en', createdBy: 'system' },
-    { id: 'sustainability', name: 'Sustainability', synonyms: ['environment', 'green tech'], active: true, lang: 'en', createdBy: 'system' },
-];
-
-const now = Date.now();
-const systemAudit = { createdAt: now, updatedAt: now, lastEditedBy: 'system' };
-const consents = { tos: now, privacy: now };
-
-export const memberships: Membership[] = [
-    { id: 'mem-1', clubId: 'club-1', userId: 'user-2', role: 'officer', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-    { id: 'mem-2', clubId: 'club-1', userId: 'user-3', role: 'member', status: 'approved', duesStatus: 'unpaid', joinedAt: now, updatedAt: now },
-    { id: 'mem-3', clubId: 'club-2', userId: 'user-3', role: 'member', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-    { id: 'mem-4', clubId: 'club-1', userId: 'user-4', role: 'owner', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-    { id: 'mem-5', clubId: 'club-1', userId: 'user-5', role: 'member', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-    { id: 'mem-6', clubId: 'club-1', userId: 'user-6', role: 'member', status: 'approved', duesStatus: 'unpaid', joinedAt: now, updatedAt: now },
-    { id: 'mem-7', clubId: 'club-1', userId: 'user-pending-1', role: 'member', status: 'pending', duesStatus: 'unpaid', joinedAt: now, updatedAt: now },
-    { id: 'mem-8', clubId: 'club-1', userId: 'user-pending-2', role: 'member', status: 'pending', duesStatus: 'unpaid', joinedAt: now, updatedAt: now },
-    { id: 'mem-club-test', clubId: 'club-2', userId: 'club_test', role: 'officer', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-    { id: 'mem-user-test', clubId: 'club-3', userId: 'user_test', role: 'member', status: 'approved', duesStatus: 'paid', joinedAt: now, updatedAt: now },
-];
-
-
-export const mockUsers: User[] = [
-    {
-        id: 'user-1',
-        name: { display: 'Alice Super' },
-        email: 'alice@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'superAdmin',
-        universityIds: ['uni-1'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        interests: ['robotics', 'ai', 'esports'],
-        memberships: [],
-    },
-    {
-        id: 'user-2',
-        name: { display: 'Bob Officer' },
-        email: 'bob@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'clubManager',
-        universityIds: ['uni-1'],
-        studentId: 'B-MGR-001',
-        major: 'Mechanical Engineering',
-        graduationYear: 2025,
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        interests: ['robotics', 'ai'],
-        memberships: memberships.filter(m => m.userId === 'user-2'),
-    },
-    {
-        id: 'user-3',
-        name: { display: 'Charlie Member' },
-        email: 'charlie@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-1', 'uni-2'],
-        studentId: 'C-MEM-002',
-        major: 'English Literature',
-        graduationYear: 2026,
-        verificationStatus: 'pending',
-        consents, audit: systemAudit,
-        interests: ['debate', 'writing'],
-        memberships: memberships.filter(m => m.userId === 'user-3'),
-    },
-    {
-        id: 'user-4',
-        name: { display: 'David Smith' },
-        email: 'david@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'clubManager',
-        universityIds: ['uni-1'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        memberships: memberships.filter(m => m.userId === 'user-4'),
-    },
-    {
-        id: 'user-5',
-        name: { display: 'Emily Johnson' },
-        email: 'emily@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-1'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        memberships: memberships.filter(m => m.userId === 'user-5'),
-    },
-    {
-        id: 'user-6',
-        name: { display: 'Michael Brown' },
-        email: 'michael@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-1'],
-        verificationStatus: 'unverified',
-        consents, audit: systemAudit,
-        memberships: memberships.filter(m => m.userId === 'user-6'),
-    },
-    {
-        id: 'user-pending-1',
-        name: { display: 'Penelope Pending' },
-        email: 'penny@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-1'],
-        verificationStatus: 'pending',
-        consents, audit: systemAudit,
-        memberships: memberships.filter(m => m.userId === 'user-pending-1'),
-    },
-    {
-        id: 'user-pending-2',
-        name: { display: 'Peter Parker' },
-        email: 'spidey@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-2'],
-        verificationStatus: 'pending',
-        consents, audit: systemAudit,
-        memberships: memberships.filter(m => m.userId === 'user-pending-2'),
-    },
-    {
-        id: 'user_test',
-        name: { display: 'User Test' },
-        email: 'user_test@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'member',
-        universityIds: ['uni-3'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        interests: ['photography', 'music'],
-        memberships: memberships.filter(m => m.userId === 'user_test'),
-    },
-    {
-        id: 'club_test',
-        name: { display: 'Club Test' },
-        email: 'club_test@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'clubManager',
-        universityIds: ['uni-2'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        interests: ['debate', 'volunteering'],
-        memberships: memberships.filter(m => m.userId === 'club_test'),
-    },
-    {
-        id: 'super_test',
-        name: { display: 'Super Test' },
-        email: 'super_test@example.com',
-        photoUrl: 'https://placehold.co/100x100',
-        roleHint: 'superAdmin',
-        universityIds: ['uni-1', 'uni-2', 'uni-3'],
-        verificationStatus: 'verified',
-        consents, audit: systemAudit,
-        interests: [],
-        memberships: [],
-    },
-];
-
-export const clubAnnouncements: ClubAnnouncement[] = [
-    { id: 'ann-1', clubId: 'club-1', authorId: 'user-2', title: 'Welcome New Members!', content: 'We are thrilled to welcome all our new members. Our first general meeting will be next Monday. See you there!', bodyHtml: '<p>We are thrilled to welcome all our new members. Our first general meeting will be next Monday. See you there!</p>', createdAt: now, updatedAt: now, date: '2024-05-15', author: 'Bob Officer' },
-    { id: 'ann-2', clubId: 'club-1', authorId: 'user-4', title: 'Hackathon Prep Session', content: 'Don\'t forget about the hackathon prep session this Friday. We will be finalizing teams and distributing starter kits.', bodyHtml: '<p>Don\'t forget about the hackathon prep session this Friday. We will be finalizing teams and distributing starter kits.</p>', createdAt: now, updatedAt: now, date: '2024-05-12', author: 'David Smith' },
-    { id: 'ann-3', clubId: 'club-2', authorId: 'user-3', title: 'Tournament Sign-ups Closing Soon', content: 'If you want to compete in the regional tournament, please make sure your team is registered by this Wednesday. No late entries!', bodyHtml: '<p>If you want to compete in the regional tournament, please make sure your team is registered by this Wednesday. No late entries!</p>', createdAt: now, updatedAt: now, date: '2024-05-10', author: 'Charlie Member' },
-];
-
-export const clubs: Club[] = [
-    {
-        id: 'club-1',
-        name: 'AI & Robotics Club',
-        description: 'Exploring the frontiers of artificial intelligence and robotics. We host workshops, competitions, and guest lectures.',
-        logoUrl: 'https://placehold.co/400x400',
-        universityIds: ['uni-1'],
-        visibility: 'public',
-        status: 'active',
-        isFeatured: true,
-        isApproved: true, // Legacy field, will be removed
-        interestTags: ['ai', 'robotics', 'entrepreneurship'],
-        createdBy: 'user-1',
-        audit: systemAudit,
-        announcements: clubAnnouncements.filter(a => a.clubId === 'club-1'),
-        university: universities[0] // Legacy field
-    },
-    {
-        id: 'club-2',
-        name: 'Debate Society',
-        description: 'Honing public speaking and critical thinking skills through lively debates and discussions.',
-        logoUrl: 'https://placehold.co/400x400',
-        universityIds: ['uni-2'],
-        visibility: 'public',
-        status: 'active',
-        isFeatured: false,
-        isApproved: true, // Legacy field
-        interestTags: ['debate'],
-        createdBy: 'user-1',
-        audit: systemAudit,
-        announcements: clubAnnouncements.filter(a => a.clubId === 'club-2'),
-        university: universities[1] // Legacy field
-    },
-    {
-        id: 'club-3',
-        name: 'Creative Writing Guild',
-        description: 'A community for writers to share their work, receive feedback, and collaborate on projects.',
-        logoUrl: 'https://placehold.co/400x400',
-        universityIds: ['uni-1'],
-        visibility: 'public',
-        status: 'active',
-        isFeatured: false,
-        isApproved: true, // Legacy field
-        interestTags: ['writing'],
-        createdBy: 'user-1',
-        audit: systemAudit,
-        university: universities[0] // Legacy field
-    },
-    {
-        id: 'club-4',
-        name: 'E-Sports League',
-        description: 'Competitive gaming across various popular titles. Join our teams and compete at the inter-university level.',
-        logoUrl: 'https://placehold.co/400x400',
-        universityIds: ['uni-2', 'uni-3'],
-        visibility: 'public',
-        status: 'active',
-        isFeatured: true,
-        isApproved: true, // Legacy field
-        interestTags: ['esports'],
-        createdBy: 'user-1',
-        audit: systemAudit,
-        university: universities[2] // Legacy field
-    },
-    {
-        id: 'club-5',
-        name: 'Photography Club',
-        description: 'A newly proposed club for students passionate about photography. Awaiting for approval.',
-        logoUrl: 'https://placehold.co/400x400',
-        universityIds: ['uni-1'],
-        visibility: 'public',
-        status: 'pendingApproval',
-        isFeatured: false,
-        isApproved: false, // Legacy field
-        interestTags: ['photography'],
-        createdBy: 'user-3',
-        audit: systemAudit,
-        university: universities[1] // Legacy field
-    },
-];
-
-const today = new Date();
-const tomorrow = new Date(today);
-tomorrow.setDate(tomorrow.getDate() + 1);
-const nextWeek = new Date(today);
-nextWeek.setDate(nextWeek.getDate() + 7);
-
-export const events: ClubEvent[] = [
-    {
-        id: 'event-1',
-        name: 'AI Workshop',
-        description: 'An introductory workshop on machine learning concepts. No prior experience required. Laptops are recommended.',
-        imageUrl: 'https://placehold.co/600x400',
-        category: 'Workshop',
-        start: today.getTime(),
-        end: today.getTime() + 2 * 60 * 60 * 1000,
-        clubId: 'club-1',
-        location: 'Tech Building, Room 101',
-        rsvps: ['user-3', 'user-5'], // Legacy field
-        price: 0, // Legacy field
-        paymentMode: 'free',
-        status: 'published',
-        rsvpOpen: today.getTime() - 7 * 24 * 60 * 60 * 1000,
-        rsvpClose: today.getTime(),
-        visibility: 'public',
-        capacity: 50,
-        waitlistEnabled: true,
-        requiresStudentVerification: false,
-        requiresDuesPaid: false,
-        timezone: 'America/New_York',
-    },
-    {
-        id: 'event-2',
-        name: 'Regional Debate Tournament',
-        description: 'The annual regional debate tournament. Sign-ups for teams are now open. Spectators welcome.',
-        imageUrl: 'https://placehold.co/600x400',
-        category: 'Competition',
-        start: tomorrow.getTime(),
-        end: tomorrow.getTime() + 8 * 60 * 60 * 1000,
-        clubId: 'club-2',
-        location: 'Grand Auditorium',
-        rsvps: ['user-3'], // Legacy field
-        price: 15, // Legacy field
-        paymentMode: 'external',
-        organizerPayLink: 'https://www.paypal.com/paypalme/mytestaccount', // Example link
-        currency: 'USD',
-        status: 'published',
-        rsvpOpen: today.getTime() - 14 * 24 * 60 * 60 * 1000,
-        rsvpClose: tomorrow.getTime(),
-        visibility: 'public',
-        capacity: 100,
-        waitlistEnabled: false,
-        requiresStudentVerification: true,
-        requiresDuesPaid: true,
-        timezone: 'America/New_York',
-    },
-    {
-        id: 'event-3',
-        name: 'Open Mic Night',
-        description: 'Share your poetry, stories, or stand-up comedy. A safe and supportive space for all creative writers.',
-        imageUrl: 'https://placehold.co/600x400',
-        category: 'Social',
-        start: nextWeek.getTime(),
-        end: nextWeek.getTime() + 3 * 60 * 60 * 1000,
-        clubId: 'club-3',
-        location: 'Student Union, Cafe Area',
-        rsvps: [], // Legacy field
-        price: 5, // Legacy field
-        paymentMode: 'external',
-        organizerPayLink: 'https://www.paypal.com/paypalme/mytestaccount',
-        currency: 'USD',
-        status: 'published',
-        rsvpOpen: today.getTime(),
-        rsvpClose: nextWeek.getTime(),
-        visibility: 'campus',
-        allowedUniversities: ['uni-1', 'uni-2'],
-        capacity: 30,
-        waitlistEnabled: true,
-        requiresStudentVerification: false,
-        requiresDuesPaid: false,
-        timezone: 'America/New_York',
-    },
-    {
-        id: 'event-4',
-        name: 'Robotics Hackathon Kick-off',
-        description: 'Kick-off meeting for the weekend-long robotics hackathon. Form teams, brainstorm ideas, and get ready to build.',
-        imageUrl: 'https://placehold.co/600x400',
-        category: 'Hackathon',
-        start: new Date(today.getFullYear(), today.getMonth() + 1, 8).getTime(),
-        end: new Date(today.getFullYear(), today.getMonth() + 1, 10).getTime(),
-        clubId: 'club-1',
-        location: 'Engineering Hub',
-        rsvps: ['user-2', 'user-4', 'user-5'], // Legacy field
-        price: 0, // Legacy field
-        paymentMode: 'free',
-        status: 'published',
-        rsvpOpen: today.getTime(),
-        rsvpClose: new Date(today.getFullYear(), today.getMonth() + 1, 8).getTime(),
-        visibility: 'public',
-        capacity: 80,
-        waitlistEnabled: true,
-        requiresStudentVerification: true,
-        requiresDuesPaid: true,
-        timezone: 'America/New_York',
-    },
-];
-
-
-export const documents: ClubDocument[] = [
-    { id: 'doc-1', clubId: 'club-1', name: 'Club Constitution.pdf', uploadedAt: '2023-09-02', url: '#', size: '1.2 MB', visibility: 'public' },
-    { id: 'doc-2', clubId: 'club-1', name: 'Meeting Minutes - Oct 2023.docx', uploadedAt: '2023-10-30', url: '#', size: '345 KB', visibility: 'member' },
-    { id: 'doc-3', clubId: 'club-1', name: 'Event Proposal - TechFair.pdf', uploadedAt: '2024-02-10', url: '#', size: '850 KB', visibility: 'manager' },
-];
-
-export const approvalRequests: ApprovalRequest[] = [
-    { id: 'req-1', type: 'club', clubId: 'club-5', requesterId: 'user-3', createdAt: now, clubName: 'Photography Club', requesterName: 'Jane Doe', date: '2024-05-10', status: 'pending' },
-    { id: 'req-2', type: 'event', clubId: 'club-1', requesterId: 'user-4', createdAt: now, clubName: 'AI & Robotics Club', requesterName: 'David Smith', date: '2024-05-08', status: 'pending' },
-    { id: 'req-3', type: 'budget', clubId: 'club-2', requesterId: 'user-3', createdAt: now, status: 'approved', clubName: 'Debate Society', requesterName: 'Chris Wilson', date: '2024-05-05' },
-    { id: 'req-4', type: 'membership', clubId: 'club-1', requesterId: 'user-pending-1', userId: 'user-pending-1', createdAt: now, clubName: 'AI & Robotics Club', requesterName: mockUsers.find(u => u.id === 'user-pending-1')!.name.display, date: '2024-05-18', status: 'pending' },
-    { id: 'req-5', type: 'membership', clubId: 'club-1', requesterId: 'user-pending-2', userId: 'user-pending-2', createdAt: now, clubName: 'AI & Robotics Club', requesterName: mockUsers.find(u => u.id === 'user-pending-2')!.name.display, date: '2024-05-19', status: 'pending' }
-];
-
-// This logic is now handled by directly adding the memberships array to each user.
-// mockUsers.forEach(user => {
-//     (user as any).memberships = memberships.filter(m => m.userId === user.id);
-// });
-// mockUsers.forEach(user => {
-//     if (user.roleHint === 'clubManager') {
-//         user.role = 'clubManager';
-//     } else if (user.roleHint === 'superAdmin') {
-//         user.role = 'superAdmin';
-//     } else {
-//         user.role = 'member';
-//     }
-// });
-
-clubs.forEach(club => {
-    (club as any).memberIds = memberships.filter(m => m.clubId === club.id && m.status === 'approved').map(m => m.userId);
-    (club as any).managerIds = memberships.filter(m => m.clubId === club.id && m.status === 'approved' && (m.role === 'officer' || m.role === 'owner')).map(m => m.userId);
-});
-
-
-export const eventDetails: Record<string, EventDetail> = {
-    'event-1': {
-        descriptionHtml: `
-      <h2>Join us for an exciting introduction to the world of Artificial Intelligence!</h2>
-      <p>This workshop is designed for complete beginners. We'll cover the fundamental concepts of machine learning, neural networks, and their real-world applications. By the end of the session, you'll have a clear understanding of what AI is and how it's shaping our future.</p>
-      <h3>What to bring:</h3>
-      <ul>
-        <li>A laptop (Windows, Mac, or Linux) with a web browser.</li>
-        <li>A curious mind and plenty of questions!</li>
-        <li>(Optional) Your favorite notebook and pen.</li>
-      </ul>
-      <p>Snacks and refreshments will be provided. We look forward to seeing you there!</p>
-    `,
-        tags: ['AI', 'Workshop', 'Beginner-Friendly', 'Free Snacks'],
-    },
-    'event-2': {
-        descriptionHtml: `
-      <h2>Witness the clash of wits at the Annual Regional Debate Tournament!</h2>
-      <p>Top teams from universities across the region will compete for the championship title. This is a fantastic opportunity to see skilled debaters in action, learn about pressing contemporary issues, and support your university's team.</p>
-      <h3>Format:</h3>
-      <p>The tournament will follow the British Parliamentary debate format. Each round will feature a different motion announced 15 minutes prior to the start.</p>
-      <p>Spectators are welcome and encouraged to attend. Come and be part of the excitement!</p>
-    `,
-        tags: ['Debate', 'Competition', 'Public Speaking', 'Paid'],
-    },
-    'event-3': {
-        descriptionHtml: `
-      <h2>Got a poem, a story, or a song to share? The stage is yours!</h2>
-      <p>Our Open Mic Night is a welcoming and supportive space for all creative individuals to express themselves. Whether you're a seasoned performer or a first-timer, we invite you to share your work with a friendly audience.</p>
-      <h3>Sign-ups:</h3>
-      <p>Sign-ups will be available at the door on a first-come, first-served basis. Each performer will have a 5-minute slot.</p>
-      <p>Come to perform, or just come to listen and enjoy the creative atmosphere. See you there!</p>
-    `,
-        tags: ['Creative Writing', 'Performance', 'Social', '5-min slots'],
-    },
-    'event-4': {
-        descriptionHtml: `
-      <h2>Ready, set, build! The Robotics Hackathon is here.</h2>
-      <p>This is the official kick-off meeting for our weekend-long hackathon. We'll be announcing the challenge, going over the rules, and helping participants form teams. This is your chance to meet fellow builders, brainstorm innovative ideas, and prepare for an intense and rewarding weekend of creating.</p>
-      <h3>What to expect:</h3>
-      <ul>
-        <li>Official hackathon theme and challenge reveal.</li>
-        <li>Team formation and networking session.</li>
-        <li>Q&A with mentors and organizers.</li>
-        <li>Distribution of hardware kits (for registered participants).</li>
-      </ul>
-      <p>Even if you don't have a team yet, come along! This is the perfect opportunity to find one.</p>
-    `,
-        tags: ['Robotics', 'Hackathon', 'Engineering', 'Free Hardware'],
-    },
+// A generic user for mock data
+const MOCK_USER: User = {
+  id: 'user-1',
+  name: 'Jane Doe',
+  email: 'user@university.edu',
+  avatarUrl: 'https://placehold.co/100x100.png',
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '(123) 456-7890',
+  universityName: 'Nexus University',
+  studentId: '123456789',
+  address: {
+      street: '123 University Ave',
+      city: 'Metropolis',
+      state: 'California',
+      zip: '90210',
+      country: 'us',
+  },
+  isPersonalized: false, // Start with false to show the nudge
 };
 
+const MOCK_CLUBS: Club[] = [
+  {
+    id: 'club-1',
+    name: 'Innovate & Create Club',
+    category: 'Technology',
+    description: 'A place for tech enthusiasts to collaborate on projects and explore new technologies.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 128,
+    isFeatured: true,
+  },
+  {
+    id: 'club-2',
+    name: 'Debate Society',
+    category: 'Arts & Culture',
+    description: 'Sharpen your public speaking and critical thinking skills with us.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 75,
+    isFeatured: false,
+  },
+  {
+    id: 'club-3',
+    name: 'E-Sports Arena',
+    category: 'Sports & Recreation',
+    description: 'Competitive gaming and casual play for all skill levels.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 250,
+    isFeatured: true,
+  },
+  {
+    id: 'club-4',
+    name: 'Green Thumb Society',
+    category: 'Community & Service',
+    description: 'Promoting sustainability and campus beautification through gardening.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 45,
+    isFeatured: false,
+  },
+  {
+    id: 'club-5',
+    name: 'Film Critics Circle',
+    category: 'Arts & Culture',
+    description: 'Watch, discuss, and analyze films from all genres and eras.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 88,
+    isFeatured: false,
+  },
+  {
+    id: 'club-6',
+    name: 'Startup Hub',
+    category: 'Academic & Professional',
+    description: 'Connect with aspiring entrepreneurs and build the next big thing.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    memberCount: 150,
+    isFeatured: true,
+  },
+];
+
+const MOCK_EVENTS: Event[] = [
+  {
+    id: 'event-1',
+    name: 'Annual Tech Summit',
+    club: { id: 'club-1', name: 'Innovate & Create Club' },
+    date: '2024-10-26T10:00:00Z',
+    location: 'Grand Auditorium',
+    description: 'Featuring keynote speakers from top tech companies and workshops on AI, blockchain, and more.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    status: 'hot',
+    highlights: ['Keynote speakers', 'AI workshops', 'Networking'],
+    rsvpFlow: 'PAID',
+    price: 5000, // $50.00
+    viewerRsvpStatus: 'attending',
+    rsvpCount: 212,
+  },
+  {
+    id: 'event-2',
+    name: 'Charity Bake Sale',
+    club: { id: 'club-4', name: 'Green Thumb Society' },
+    date: '2024-11-05T12:00:00Z',
+    location: 'Student Union Plaza',
+    description: 'Delicious treats for a good cause. All proceeds go to local community gardens.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    status: 'available',
+    highlights: ['For a cause', 'Delicious food'],
+    rsvpFlow: 'FREE',
+    price: 0,
+    viewerRsvpStatus: 'interested',
+    rsvpCount: 88,
+  },
+  {
+    id: 'event-3',
+    name: 'Gaming Tournament: Nexus Legends',
+    club: { id: 'club-3', name: 'E-Sports Arena' },
+    date: '2024-11-15T18:00:00Z',
+    location: 'E-Sports Arena, Building C',
+    description: 'Compete for glory and prizes in our biggest tournament of the year.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    status: 'available',
+    highlights: ['Prizes', 'Free to play', 'Competitive'],
+    rsvpFlow: 'FREE',
+    price: 0,
+    viewerRsvpStatus: 'none',
+    rsvpCount: 150,
+  },
+  {
+    id: 'event-4',
+    name: 'Classic Cinema Night: Sci-Fi',
+    club: { id: 'club-5', name: 'Film Critics Circle' },
+    date: '2024-11-20T19:00:00Z',
+    location: 'Lecture Hall 3B',
+    description: 'A screening and discussion of a classic science fiction masterpiece.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    status: 'hot',
+    highlights: ['Free popcorn', 'Discussion panel'],
+    rsvpFlow: 'FREE',
+    price: 0,
+    viewerRsvpStatus: 'attending',
+    rsvpCount: 180,
+  },
+  {
+    id: 'event-5',
+    name: 'Entrepreneurship Pitch Night',
+    club: { id: 'club-6', name: 'Startup Hub' },
+    date: '2024-11-28T19:00:00Z',
+    location: 'Innovation Hall',
+    description: 'Present your startup ideas to a panel of judges and potential investors.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    status: 'available',
+    highlights: ['Pitch competition', 'Networking', 'Investor panel'],
+    rsvpFlow: 'FREE',
+    price: 0,
+    viewerRsvpStatus: 'none',
+    rsvpCount: 95,
+  },
+];
+
+const MOCK_ORDERS: Order[] = [
+  {
+    id: 'ORD-001',
+    userId: MOCK_USER.id,
+    eventId: null,
+    itemName: 'Club Membership Fee',
+    createdAt: '2024-09-01T10:00:00Z',
+    total: 2500,
+    status: 'paid',
+  },
+  {
+    id: 'ORD-002',
+    userId: MOCK_USER.id,
+    eventId: 'event-1',
+    itemName: 'Tech Summit Ticket',
+    createdAt: '2024-09-15T11:00:00Z',
+    total: 5000,
+    status: 'paid',
+  },
+  {
+    id: 'ORD-003',
+    userId: MOCK_USER.id,
+    eventId: null,
+    itemName: 'E-Sports Jersey',
+    createdAt: '2024-09-20T14:00:00Z',
+    total: 4500,
+    status: 'awaiting_payment',
+  },
+  {
+    id: 'ORD-004',
+    userId: MOCK_USER.id,
+    eventId: 'event-1',
+    itemName: 'Workshop Material Fee',
+    createdAt: '2024-10-02T09:00:00Z',
+    total: 1500,
+    status: 'paid',
+  },
+  {
+    id: 'ORD-005',
+    userId: MOCK_USER.id,
+    eventId: null,
+    itemName: 'Charity Donation',
+    createdAt: '2024-10-05T13:00:00Z',
+    total: 2000,
+    status: 'under_review',
+  },
+];
+
+const MOCK_TICKETS: Ticket[] = [
+  {
+    id: 'TKT-001',
+    orderId: 'ORD-002',
+    userId: MOCK_USER.id,
+    event: {
+      id: 'event-1',
+      name: 'Annual Tech Summit',
+      date: '2024-10-26T10:00:00Z',
+      location: 'Grand Auditorium, Seat A12',
+    },
+    qrCodeUrl: 'https://placehold.co/150x150.png',
+    status: 'issued',
+    issuedAt: '2024-09-15T11:00:01Z',
+  },
+  {
+    id: 'TKT-002',
+    orderId: 'ORD-00X', // Fictional order for free event
+    userId: MOCK_USER.id,
+    event: {
+      id: 'event-4',
+      name: 'Classic Cinema Night: Sci-Fi',
+      date: '2024-11-20T19:00:00Z',
+      location: 'Lecture Hall 3B, General Admission',
+    },
+    qrCodeUrl: 'https://placehold.co/150x150.png',
+    status: 'issued',
+    issuedAt: '2024-09-18T11:00:01Z',
+  },
+];
+
+const MOCK_MEMBERSHIPS: Membership[] = [
+  { clubId: 'club-1', userId: MOCK_USER.id, status: 'approved', joinedAt: '2024-09-01T10:00:00Z' },
+  { clubId: 'club-2', userId: MOCK_USER.id, status: 'approved', joinedAt: '2024-09-02T10:00:00Z' },
+  { clubId: 'club-3', userId: MOCK_USER.id, status: 'pending', joinedAt: '2024-09-03T10:00:00Z' },
+];
+
+export const MOCK_DATA = {
+  clubs: MOCK_CLUBS,
+  events: MOCK_EVENTS,
+  orders: MOCK_ORDERS,
+  tickets: MOCK_TICKETS,
+  users: [MOCK_USER],
+  memberships: MOCK_MEMBERSHIPS,
+};
