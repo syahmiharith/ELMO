@@ -14,15 +14,15 @@ Status: Hackathon project (active) • Scope aims for an MVP that is demo‑read
 ## Core features (MVP)
 - RBAC and policies
   - Flexible role‑based access control and policy enforcement at API and Firestore security rules levels.
-  - Super Admin approvals for proposals (events, budgets, purchases, reimbursements) and configurable rules (spending caps, categories, compliance).
+  - Super Admin approvals for proposals (events, finance, club policy) and configurable rules (spending caps, categories, compliance).
 - Club management (multi‑university)
   - Create/update/archive clubs with members and officers from any university; featured clubs per university/global.
   - Club details, documents, and file storage per club.
-- Members & attendance
-  - Member CRUD, role assignment, join/approval, manual dues status (no payments), attendance tracking and export.
+- Members
+  - Member CRUD, role assignment, join/approval, manual dues status and export for reporting.
 - Events & proposals
   - Event CRUD, RSVP, manual check‑in; single‑stage proposal and approval flow; exports for reporting.
-- Finance (WIP)
+- Finance
   - Budgets, expenses with receipt uploads, reimbursements; approval flow; budget vs. spend tracking; exportable summaries.
 - Tasks, roles, and communications (WIP)
   - Officer roles, task assignment with deadlines/status, volunteer sign‑ups, in‑app announcements; club file sharing.
@@ -42,10 +42,8 @@ See roadmap issues for details:
 ## Tech stack
 - Frontend: React 18 (Create React App)
 - Backend: Firebase Cloud Functions (Node.js) and Firestore
-- Data Access: Firebase Data Connect (dataconnect/ + default connector)
 - Auth: Firebase Authentication
 - Hosting/Infra: Firebase (Hosting, Emulators) and Google Cloud App Hosting (apphosting.yaml)
-- Optional AI: Genkit with Google AI providers
 - Security: Firestore security rules (firestore.rules) and indexes (firestore.indexes.json)
 
 
