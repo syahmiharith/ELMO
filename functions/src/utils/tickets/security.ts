@@ -17,15 +17,20 @@ import { securityConfig } from '../../config/function-config';
  */
 export function generateSecureTicketCode(length = securityConfig.secureCodeCharSet.length): string {
     const allowedChars = securityConfig.secureCodeCharSet;
-    const randomBytes = crypto.randomBytes(length);
-
+    const charSetLength = allowedChars.length;
     let result = '';
-    for (let i = 0; i < length; i++) {
-        // Map random bytes to our allowed character set
-        const randomIndex = randomBytes[i] % allowedChars.length;
+    // Calculate the largest multiple of charSetLength less than 256
+    const maxValidByte = Math.floor(256 / charSetLength) * charSetLength;
+    let generated = 0;
+    while (generated < length) {
+        const byte = crypto.randomBytes(1)[0];
+        if (byte >= maxValidByte) {
+            continue; // Discard biased byte
+        }
+        const randomIndex = byte % charSetLength;
         result += allowedChars.charAt(randomIndex);
+        generated++;
     }
-
     return result;
 }
 
