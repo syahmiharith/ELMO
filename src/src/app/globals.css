@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 265 35% 98%;
+    --foreground: 264 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 264 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 264 20% 15%;
+    --primary: 278 69% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 273 60% 90%;
+    --secondary-foreground: 264 20% 15%;
+    --muted: 273 60% 90%;
+    --muted-foreground: 264 20% 40%;
+    --accent: 218 62% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 278 20% 85%;
+    --input: 278 20% 90%;
+    --ring: 278 69% 61%;
+    --radius: 0.5rem;
+
+    /* Custom Sidebar Vars */
+    --sidebar-background: 273 83% 97%;
+    --sidebar-foreground: 264 20% 25%;
+    --sidebar-primary: 278 69% 61%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 273 60% 90%;
+    --sidebar-accent-foreground: 264 20% 15%;
+    --sidebar-border: 278 20% 88%;
+    --sidebar-ring: 278 69% 61%;
+  }
+
+  .dark {
+    --background: 265 25% 12%;
+    --foreground: 273 83% 97%;
+    --card: 265 23% 15%;
+    --card-foreground: 273 83% 97%;
+    --popover: 265 25% 12%;
+    --popover-foreground: 273 83% 97%;
+    --primary: 278 69% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 265 20% 20%;
+    --secondary-foreground: 273 83% 97%;
+    --muted: 265 20% 20%;
+    --muted-foreground: 273 30% 70%;
+    --accent: 218 62% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 265 20% 25%;
+    --input: 265 20% 25%;
+    --ring: 218 62% 60%;
+
+    /* Custom Sidebar Vars */
+    --sidebar-background: 265 25% 12%;
+    --sidebar-foreground: 273 83% 97%;
+    --sidebar-primary: 278 69% 61%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 265 20% 20%;
+    --sidebar-accent-foreground: 273 83% 97%;
+    --sidebar-border: 265 20% 25%;
+    --sidebar-ring: 218 62% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
