@@ -1,5 +1,6 @@
 import EventDetailsClient from './client';
 
-export default function Page({ params }: { params: { eventId: string } }) {
-  return <EventDetailsClient eventId={params.eventId} />;
+export default async function Page({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = await params;
+  return <EventDetailsClient eventId={eventId} />;
 }

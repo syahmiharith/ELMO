@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -18,7 +17,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { QrCode, Ticket, Users, FileCheck, BarChart2 } from 'lucide-react';
+import { QrCode, Ticket, Users, FileCheck, BarChart2, Image } from 'lucide-react';
+import Link from 'next/link';
 
 export default function EventManageClient({ eventId }: { eventId: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -69,12 +69,13 @@ export default function EventManageClient({ eventId }: { eventId: string }) {
           Event ID: {eventId}
         </p>
       </div>
-      <Tabs defaultValue="check-in" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview"><BarChart2 className="mr-2" />Overview</TabsTrigger>
           <TabsTrigger value="attendees"><Users className="mr-2" />Attendees</TabsTrigger>
           <TabsTrigger value="orders"><FileCheck className="mr-2" />Orders</TabsTrigger>
           <TabsTrigger value="tickets"><Ticket className="mr-2" />Tickets</TabsTrigger>
+          <TabsTrigger value="media"><Image className="mr-2" />Media</TabsTrigger>
           <TabsTrigger value="check-in"><QrCode className="mr-2" />Check-in</TabsTrigger>
         </TabsList>
         
@@ -130,6 +131,28 @@ export default function EventManageClient({ eventId }: { eventId: string }) {
             </CardHeader>
             <CardContent>
               <p>Tickets list goes here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="media">
+          <Card>
+            <CardHeader>
+              <CardTitle>Event Media & Files</CardTitle>
+              <CardDescription>
+                Manage images, documents, and other media for your event.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>You can upload and manage media files for this event.</p>
+              <div className="mt-4">
+                <Link href={`/events/${eventId}/manage/media`}>
+                  <Button>
+                    <Image className="mr-2 h-4 w-4" />
+                    Manage Media Files
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

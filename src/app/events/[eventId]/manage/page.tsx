@@ -1,5 +1,6 @@
 import EventManageClient from './client';
 
-export default function Page({ params }: { params: { eventId: string } }) {
-  return <EventManageClient eventId={params.eventId} />;
+export default async function Page({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = await params;
+  return <EventManageClient eventId={eventId} />;
 }

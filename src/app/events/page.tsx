@@ -1,4 +1,3 @@
-
 'use client';
 import {
   Card,
@@ -170,9 +169,23 @@ function EventList({ events, isLoading, hasMore, onFetchMore }: { events: ClubEv
 function ForYouTab() {
   const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<ClubEvent[]>([]);
+  const [defaultEvents, setDefaultEvents] = useState<ClubEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userActivity, setUserActivity] = useState('');
   const { toast } = useToast();
+
+  // Load default events when component mounts
+  useEffect(() => {
+    const loadDefaultEvents = async () => {
+      try {
+        const allEvents = await listEvents({ page: 1, pageSize: 6 });
+        setDefaultEvents(allEvents);
+      } catch (error) {
+        console.error('Failed to load default events:', error);
+      }
+    };
+    loadDefaultEvents();
+  }, []);
 
   const handleGetRecommendations = async () => {
     if (!userActivity) {
@@ -235,7 +248,12 @@ function ForYouTab() {
                     </CardContent>
                 </CardHeader>
             </Card>
-            <EventList events={recommendations} isLoading={isLoading} hasMore={false} onFetchMore={() => {}} />
+            <EventList
+              events={recommendations.length > 0 ? recommendations : defaultEvents}
+              isLoading={isLoading}
+              hasMore={false}
+              onFetchMore={() => {}}
+            />
         </div>
     </div>
   );
@@ -288,6 +306,13 @@ export default function EventsPage() {
     }
   }, [toast, user.address?.city, activeTab, page, fetchEvents]);
 
+  // Load trending events initially when component mounts
+  useEffect(() => {
+    if (activeTab === 'trending') {
+      fetchEvents({ sortBy: 'popularity' }, 1);
+    }
+  }, []);
+
   const handleFetchMore = () => {
     if (!isLoading && hasMore) {
         setPage(prev => prev + 1);
@@ -307,9 +332,11 @@ export default function EventsPage() {
                 </p>
             </div>
             {permissions.includes('action:create-event') && (
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Event
+                <Button asChild>
+                    <Link href="/events/create">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Event
+                    </Link>
                 </Button>
             )}
         </header>

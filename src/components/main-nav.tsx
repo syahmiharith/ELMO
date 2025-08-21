@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -14,6 +13,7 @@ import {
   User,
   Compass,
   Heart,
+  Megaphone,
 } from 'lucide-react';
 
 import {
@@ -37,6 +37,7 @@ const navItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard, permission: 'view:dashboard', featureFlag: 'dashboard' },
   { href: '/clubs', label: 'Clubs', icon: Compass, permission: 'view:clubs' },
   { href: '/events', label: 'Events', icon: Calendar, permission: 'view:events' },
+  { href: '/announcements', label: 'Announcements', icon: Megaphone, permission: 'action:create-event' },
   {
     href: '/tickets',
     label: 'Ticket',

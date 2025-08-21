@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -19,7 +18,8 @@ import {
   DollarSign,
   Info,
   Dot,
-  Flame
+  Flame,
+  Edit
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
@@ -124,13 +124,25 @@ export default function EventDetailsClient({
           {/* Left Section */}
           <div className="md:col-span-2 space-y-6">
             <header>
-               <Badge variant={getStatusBadgeVariant(event.status)} className="capitalize mb-2">
-                    {event.status === 'hot' && <Flame className="mr-1 h-3 w-3" />}
-                    {event.status}
-                </Badge>
-              <h1 className="mt-1 text-4xl font-bold font-headline tracking-tight">
-                {event.name}
-              </h1>
+              <div className="flex items-start justify-between">
+                <div>
+                  <Badge variant={getStatusBadgeVariant(event.status)} className="capitalize mb-2">
+                      {event.status === 'hot' && <Flame className="mr-1 h-3 w-3" />}
+                      {event.status}
+                  </Badge>
+                  <h1 className="mt-1 text-4xl font-bold font-headline tracking-tight">
+                    {event.name}
+                  </h1>
+                </div>
+                {permissions.includes('action:create-event') && (
+                  <Button variant="outline" asChild>
+                    <Link href={`/events/${eventId}/edit`}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Event
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </header>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
