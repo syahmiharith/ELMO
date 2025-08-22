@@ -24,7 +24,7 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import type { Club, ClubQuery } from '@/types/domain';
-import { listClubs, requestMembership } from '@/lib/api';
+import { listClubs } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
@@ -107,19 +107,27 @@ function ClubList({ clubs, isLoading, hasMore, onFetchMore }: { clubs: Club[], i
 export default function ClubsPage() {
   const { permissions, user } = useAuth();
   const { toast } = useToast();
+  
   const [allClubs, setAllClubs] = useState<Club[]>([]);
   const [forYouClubs, setForYouClubs] = useState<Club[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('all-clubs');
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
-  const fetchClubs = useCallback(async (query: ClubQuery, setter: React.Dispatch<React.SetStateAction<Club[]>>, currentPage: number) => {
-    setIsLoading(true);
+  const [isLoading, setIsLoading] = useState({ all: true, forYou: true });
+  
+  const [pages, setPages] = useState({ all: 1, forYou: 1 });
+  const [hasMore, setHasMore] = useState({ all: true, forYou: true });
+  const [activeTab, setActiveTab] = useState('all-clubs');
+
+  const fetchClubs = useCallback(async (
+    query: ClubQuery, 
+    setter: React.Dispatch<React.SetStateAction<Club[]>>, 
+    currentPage: number,
+    listKey: 'all' | 'forYou'
+  ) => {
+    setIsLoading(prev => ({ ...prev, [listKey]: true }));
     try {
       const clubData = await listClubs({ ...query, page: currentPage, pageSize: PAGE_SIZE });
       if (clubData.length < PAGE_SIZE) {
-        setHasMore(false);
+        setHasMore(prev => ({...prev, [listKey]: false}));
       }
       setter(prev => currentPage === 1 ? clubData : [...prev, ...clubData]);
     } catch (error) {
@@ -129,29 +137,29 @@ export default function ClubsPage() {
         description: 'Failed to load clubs.',
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading(prev => ({ ...prev, [listKey]: false }));
     }
   }, [toast]);
 
   useEffect(() => {
-    setAllClubs([]);
-    setForYouClubs([]);
-    setPage(1);
-    setHasMore(true);
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (activeTab === 'all-clubs') {
-      fetchClubs({}, setAllClubs, page);
-    } else if (activeTab === 'for-you') {
-      // TODO: Add a proper relevance query for clubs
-      fetchClubs({}, setForYouClubs, page);
-    }
-  }, [activeTab, page, fetchClubs]);
+    // Pre-fetch both lists on initial load
+    fetchClubs({}, setAllClubs, 1, 'all');
+    fetchClubs({ sortBy: 'relevance' }, setForYouClubs, 1, 'forYou'); 
+  }, [fetchClubs]);
 
   const handleFetchMore = () => {
-    if (!isLoading && hasMore) {
-      setPage(prev => prev + 1);
+    if (activeTab === 'all-clubs') {
+      if (!isLoading.all && hasMore.all) {
+        const nextPage = pages.all + 1;
+        setPages(prev => ({...prev, all: nextPage}));
+        fetchClubs({}, setAllClubs, nextPage, 'all');
+      }
+    } else if (activeTab === 'for-you') {
+      if (!isLoading.forYou && hasMore.forYou && user.isPersonalized) {
+        const nextPage = pages.forYou + 1;
+        setPages(prev => ({...prev, forYou: nextPage}));
+        fetchClubs({ sortBy: 'relevance' }, setForYouClubs, nextPage, 'forYou');
+      }
     }
   };
 
@@ -200,12 +208,12 @@ export default function ClubsPage() {
             </div>
         </div>
         <TabsContent value="all-clubs">
-            <ClubList clubs={allClubs} isLoading={isLoading} hasMore={hasMore} onFetchMore={handleFetchMore} />
+            <ClubList clubs={allClubs} isLoading={isLoading.all} hasMore={hasMore.all} onFetchMore={handleFetchMore} />
         </TabsContent>
         <TabsContent value="for-you" className="relative">
              {!user.isPersonalized && <PersonalizationNudge />}
             <div className={cn({ 'blur-sm': !user.isPersonalized })}>
-                <ClubList clubs={forYouClubs} isLoading={isLoading} hasMore={hasMore} onFetchMore={handleFetchMore}/>
+                <ClubList clubs={forYouClubs} isLoading={isLoading.forYou} hasMore={hasMore.forYou} onFetchMore={handleFetchMore}/>
             </div>
         </TabsContent>
       </Tabs>

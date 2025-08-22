@@ -25,6 +25,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { ThemeToggleIcon } from '@/components/theme-toggle-icon';
+import { GlobalSearch } from '@/components/global-search';
 
 // Dev-only: Load local feature flags
 if (process.env.NODE_ENV === 'development') {
@@ -74,10 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
                <SidebarTrigger className="md:hidden" />
               <div className="flex-1">
-                <div className="relative w-full max-w-md">
-                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                   <Input placeholder="Search anything..." className="pl-10 h-9 bg-muted" />
-                </div>
+                <GlobalSearch />
               </div>
               <UserNav />
             </header>

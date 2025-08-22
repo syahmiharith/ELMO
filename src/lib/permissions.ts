@@ -1,7 +1,8 @@
-export type Role = 'Student' | 'Club Admin' | 'University Admin';
+
+export type Role = 'User' | 'Club Admin' | 'PPMK';
 
 export const permissionsByRole: Record<Role, string[]> = {
-  Student: [
+  User: [
     'view:dashboard',
     'view:clubs',
     'view:events',
@@ -26,8 +27,9 @@ export const permissionsByRole: Record<Role, string[]> = {
     'action:manage-rsvps',
     'view:orders',
     'view:tickets',
+    'view:admin',
   ],
-  'University Admin': [
+  PPMK: [
     'view:dashboard',
     'view:clubs',
     'view:events',
@@ -40,7 +42,9 @@ export const permissionsByRole: Record<Role, string[]> = {
     'action:manage-rsvps',
     'action:approve-club',
     'action:manage-users',
+    'action:override',
     'view:orders',
     'view:tickets',
+    'view:admin',
   ],
 };

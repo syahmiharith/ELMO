@@ -18,7 +18,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { QrCode, Ticket, Users, FileCheck, BarChart2 } from 'lucide-react';
+import { QrCode, Ticket, Users, FileCheck, BarChart2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function EventManageClient({ eventId }: { eventId: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -61,20 +62,28 @@ export default function EventManageClient({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">
-          Manage Event
-        </h1>
-        <p className="text-muted-foreground">
-          Event ID: {eventId}
-        </p>
-      </div>
+      <header className="space-y-4">
+        <Link
+            href={`/events/${eventId}`}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:underline"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Event Page
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold font-headline tracking-tight">
+            Manage Event
+          </h1>
+          <p className="text-muted-foreground">
+            A dashboard for managing your event, inspired by Eventbrite.
+          </p>
+        </div>
+      </header>
       <Tabs defaultValue="check-in" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview"><BarChart2 className="mr-2" />Overview</TabsTrigger>
           <TabsTrigger value="attendees"><Users className="mr-2" />Attendees</TabsTrigger>
           <TabsTrigger value="orders"><FileCheck className="mr-2" />Orders</TabsTrigger>
-          <TabsTrigger value="tickets"><Ticket className="mr-2" />Tickets</TabsTrigger>
           <TabsTrigger value="check-in"><QrCode className="mr-2" />Check-in</TabsTrigger>
         </TabsList>
         
@@ -98,7 +107,7 @@ export default function EventManageClient({ eventId }: { eventId: string }) {
               <CardTitle>Attendees</CardTitle>
               <CardDescription>
                 View the RSVP list for your event.
-              </CardDescription>
+              </-cardDescription>
             </CardHeader>
             <CardContent>
               <p>Attendees list goes here.</p>
@@ -116,20 +125,6 @@ export default function EventManageClient({ eventId }: { eventId: string }) {
             </CardHeader>
             <CardContent>
               <p>Orders and receipts queue goes here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="tickets">
-          <Card>
-            <CardHeader>
-              <CardTitle>Issued Tickets</CardTitle>
-              <CardDescription>
-                View issued and redeemed tickets.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Tickets list goes here.</p>
             </CardContent>
           </Card>
         </TabsContent>

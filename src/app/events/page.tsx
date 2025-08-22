@@ -25,17 +25,17 @@ import { Logo } from '@/components/logo';
 import Link from 'next/link';
 import { ClientFormattedDate } from '@/components/client-formatted-date';
 import { useEffect, useState, useTransition, useCallback, useRef } from 'react';
-import type { Event as ClubEvent, EventQuery } from '@/types/domain';
-import { listEvents, getEvent } from '@/lib/api';
+import type { Event as ClubEvent, EventQuery, Club } from '@/types/domain';
+import { listEvents, createEvent, getClub } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RecommendationsForm } from '@/components/recommendations-form';
-import { getRecommendations } from '@/app/recommendations/actions';
-import { Textarea } from '@/components/ui/textarea';
 import { PersonalizationNudge } from '@/components/personalization-nudge';
+import { EventForm } from '@/components/event-form';
 
 const PAGE_SIZE = 4;
 
-function EventList({ events, isLoading, hasMore, onFetchMore }: { events: ClubEvent[], isLoading: boolean, hasMore: boolean, onFetchMore: () => void }) {
+type EventWithClub = ClubEvent & { club: Club };
+
+function EventList({ events, isLoading, hasMore, onFetchMore }: { events: EventWithClub[], isLoading: boolean, hasMore: boolean, onFetchMore: () => void }) {
     const { permissions } = useAuth();
     const observer = useRef<IntersectionObserver>();
 
@@ -167,89 +167,20 @@ function EventList({ events, isLoading, hasMore, onFetchMore }: { events: ClubEv
     );
 }
 
-function ForYouTab() {
-  const { user } = useAuth();
-  const [recommendations, setRecommendations] = useState<ClubEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userActivity, setUserActivity] = useState('');
-  const { toast } = useToast();
-
-  const handleGetRecommendations = async () => {
-    if (!userActivity) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please enter your interests.' });
-        return;
-    }
-    setIsLoading(true);
-    setRecommendations([]);
-
-    try {
-        const result = await getRecommendations({ userActivity });
-        if (result.success && result.data) {
-            const allEvents = await listEvents();
-            const recommendedEventDetails = allEvents.filter(event => 
-                result.data?.recommendedEvents.some(recEvent => event.name.toLowerCase() === recEvent.toLowerCase())
-            );
-            setRecommendations(recommendedEventDetails);
-        } else {
-            toast({ variant: 'destructive', title: 'Error', description: result.error || 'An unexpected error occurred.' });
-        }
-    } catch (error) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to fetch recommendations.' });
-    } finally {
-        setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-8 relative">
-       {!user.isPersonalized && recommendations.length === 0 && <PersonalizationNudge />}
-        <div className={cn({ 'blur-sm': !user.isPersonalized && recommendations.length === 0 })}>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                        <Sparkles className="text-primary" />
-                        Personalized Event Recommendations
-                    </CardTitle>
-                    <CardContent className='p-0 pt-4'>
-                        <div className="space-y-4">
-                            <Textarea
-                                placeholder="e.g., 'I love competitive programming, hiking on weekends, and I'm studying marketing...'"
-                                className="min-h-[100px]"
-                                value={userActivity}
-                                onChange={(e) => setUserActivity(e.target.value)}
-                            />
-                            <Button onClick={handleGetRecommendations} disabled={isLoading}>
-                                {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating...
-                                </>
-                                ) : (
-                                <>
-                                    <Sparkles className="mr-2 h-4 w-4" />
-                                    Get Recommendations
-                                </>
-                                )}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </CardHeader>
-            </Card>
-            <EventList events={recommendations} isLoading={isLoading} hasMore={false} onFetchMore={() => {}} />
-        </div>
-    </div>
-  );
-}
-
-
 export default function EventsPage() {
   const { permissions, user } = useAuth();
   const { toast } = useToast();
-  const [events, setEvents] = useState<ClubEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('for-you');
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  
+  const [trendingEvents, setTrendingEvents] = useState<EventWithClub[]>([]);
+  const [forYouEvents, setForYouEvents] = useState<EventWithClub[]>([]);
+  
+  const [isLoading, setIsLoading] = useState({ trending: true, forYou: true });
+  
+  const [pages, setPages] = useState({ trending: 1, forYou: 1 });
+  const [hasMore, setHasMore] = useState({ trending: true, forYou: true });
+  const [activeTab, setActiveTab] = useState('trending');
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+  const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
 
   const pageTitle = activeTab === 'trending' ? 'Trending Events' : 'Event Listings';
   const pageDescription =
@@ -257,14 +188,30 @@ export default function EventsPage() {
       ? `Showing popular events in ${user.address?.city || 'your area'}.`
       : "Find out what's happening on campus.";
 
-  const fetchEvents = useCallback(async (query: EventQuery, currentPage: number) => {
-      setIsLoading(true);
+  const fetchEvents = useCallback(async (
+    query: EventQuery, 
+    setter: React.Dispatch<React.SetStateAction<EventWithClub[]>>, 
+    currentPage: number,
+    listKey: 'trending' | 'forYou'
+  ) => {
+      setIsLoading(prev => ({...prev, [listKey]: true}));
       try {
-        const eventData = await listEvents({ ...query, page: currentPage, pageSize: PAGE_SIZE });
-         if (eventData.length < PAGE_SIZE) {
-            setHasMore(false);
+        const finalQuery = { ...query, page: currentPage, pageSize: PAGE_SIZE };
+        if (priceFilter !== 'all') {
+            finalQuery.price = priceFilter;
         }
-        setEvents(prev => currentPage === 1 ? eventData : [...prev, ...eventData]);
+
+        const eventData = await listEvents(finalQuery);
+        const eventsWithClubs = await Promise.all(
+            eventData.map(async (event) => {
+                const club = await getClub(event.clubId);
+                return { ...event, club };
+            })
+        );
+         if (eventsWithClubs.length < PAGE_SIZE) {
+            setHasMore(prev => ({...prev, [listKey]: false}));
+        }
+        setter(prev => currentPage === 1 ? eventsWithClubs : [...prev, ...eventsWithClubs]);
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -272,28 +219,43 @@ export default function EventsPage() {
           description: 'Failed to load events.',
         });
       } finally {
-        setIsLoading(false);
+        setIsLoading(prev => ({...prev, [listKey]: false}));
       }
-    }, [toast]);
+    }, [toast, priceFilter]);
   
   useEffect(() => {
-    setEvents([]);
-    setPage(1);
-    setHasMore(true);
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (activeTab === 'trending') {
-        fetchEvents({ sortBy: 'popularity' }, page);
-    }
-  }, [toast, user.address?.city, activeTab, page, fetchEvents]);
+    // Reset and fetch when tab or filter changes
+    setTrendingEvents([]);
+    setForYouEvents([]);
+    setPages({ trending: 1, forYou: 1 });
+    setHasMore({ trending: true, forYou: true });
+    fetchEvents({ sortBy: 'popularity' }, setTrendingEvents, 1, 'trending');
+    fetchEvents({ sortBy: 'relevance' }, setForYouEvents, 1, 'forYou');
+  }, [fetchEvents, activeTab, priceFilter]);
 
   const handleFetchMore = () => {
-    if (!isLoading && hasMore) {
-        setPage(prev => prev + 1);
+    if (activeTab === 'trending') {
+        if (!isLoading.trending && hasMore.trending) {
+            const nextPage = pages.trending + 1;
+            setPages(prev => ({...prev, trending: nextPage}));
+            fetchEvents({ sortBy: 'popularity' }, setTrendingEvents, nextPage, 'trending');
+        }
+    } else if (activeTab === 'for-you') {
+        if (!isLoading.forYou && hasMore.forYou && user.isPersonalized) {
+            const nextPage = pages.forYou + 1;
+            setPages(prev => ({...prev, forYou: nextPage}));
+            fetchEvents({ sortBy: 'relevance' }, setForYouEvents, nextPage, 'forYou');
+        }
     }
   };
   
+  const handleEventCreated = (newEvent: ClubEvent) => {
+     getClub(newEvent.clubId).then(club => {
+        const newEventWithClub = { ...newEvent, club };
+        setTrendingEvents(prev => [newEventWithClub, ...prev].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        setIsEventFormOpen(false);
+    });
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -307,10 +269,16 @@ export default function EventsPage() {
                 </p>
             </div>
             {permissions.includes('action:create-event') && (
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Event
-                </Button>
+                <EventForm
+                    onEventCreated={handleEventCreated}
+                    open={isEventFormOpen}
+                    onOpenChange={setIsEventFormOpen}
+                >
+                    <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Event
+                    </Button>
+                </EventForm>
             )}
         </header>
 
@@ -318,11 +286,20 @@ export default function EventsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <TabsList>
-                <TabsTrigger value="for-you"><Sparkles className='mr-2' />For You</TabsTrigger>
                 <TabsTrigger value="trending"><TrendingUp className='mr-2' />Trending</TabsTrigger>
+                <TabsTrigger value="for-you"><Sparkles className='mr-2' />For You</TabsTrigger>
             </TabsList>
             <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1" />
+                <Select value={priceFilter} onValueChange={(value) => setPriceFilter(value as any)}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="All Prices" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="paid">Paid</SelectItem>
+                    </SelectContent>
+                </Select>
                 <Select>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="All Dates" />
@@ -336,11 +313,14 @@ export default function EventsPage() {
                 </Select>
             </div>
         </div>
-        <TabsContent value="for-you">
-          <ForYouTab />
-        </TabsContent>
         <TabsContent value="trending">
-          <EventList events={events} isLoading={isLoading} hasMore={hasMore} onFetchMore={handleFetchMore} />
+          <EventList events={trendingEvents} isLoading={isLoading.trending} hasMore={hasMore.trending} onFetchMore={handleFetchMore} />
+        </TabsContent>
+        <TabsContent value="for-you" className="relative">
+            {!user.isPersonalized && <PersonalizationNudge />}
+            <div className={cn({ 'blur-sm': !user.isPersonalized })}>
+                <EventList events={forYouEvents} isLoading={isLoading.forYou} hasMore={hasMore.forYou} onFetchMore={handleFetchMore}/>
+            </div>
         </TabsContent>
       </Tabs>
 

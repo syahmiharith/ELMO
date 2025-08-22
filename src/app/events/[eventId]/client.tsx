@@ -19,18 +19,133 @@ import {
   DollarSign,
   Info,
   Dot,
-  Flame
+  Flame,
+  ArrowRight,
+  Plus,
+  Minus,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import type { Event as ClubEvent } from '@/types/domain';
+import type { Event as ClubEvent, Ticket as TicketType, Club, Order } from '@/types/domain';
 import { useState, useEffect } from 'react';
-import { getEvent, rsvpEvent } from '@/lib/api';
+import { getEvent, rsvpEvent, listMyTickets, getClub, listMyOrders } from '@/lib/api';
 import { ClientFormattedDate } from '@/components/client-formatted-date';
 import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { summarizeEventTldr } from '@/ai/flows/summarize-event-tldr';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+
+function EventCheckoutDialog({ event, onConfirm, children }: { event: ClubEvent, onConfirm: (quantity: number) => Promise<void>, children: React.ReactNode }) {
+    const [quantity, setQuantity] = useState(1);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const { toast } = useToast();
+
+    const handleCheckout = async () => {
+        setIsProcessing(true);
+        try {
+            await onConfirm(quantity);
+            // The toast is now shown by the parent component's onConfirm function.
+            // We just wait a bit before closing the modal so the user sees the toast.
+            setTimeout(() => {
+                setIsOpen(false);
+            }, 1000);
+        } catch (error) {
+            // Error toast is handled by parent, we just stop processing here.
+        } finally {
+            // In a real app you might want to handle the loading state differently on error
+            setIsProcessing(false);
+        }
+    }
+
+    const price = event.price > 0 ? (event.price / 100) * quantity : 0;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                {children}
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl p-0">
+                <div className="grid grid-cols-1 md:grid-cols-5">
+                    {/* Left Section */}
+                    <div className="md:col-span-3 p-8 flex flex-col">
+                        <DialogHeader className="text-left mb-6">
+                            <DialogTitle className="text-2xl font-headline">Checkout</DialogTitle>
+                        </DialogHeader>
+                        
+                        <div className="flex-1 space-y-6">
+                            <div className="border rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <h4 className="font-semibold">{event.name} Ticket</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                        {event.price > 0 ? `$${(event.price / 100).toFixed(2)}` : 'Free'}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
+                                        <Minus className="h-4 w-4" />
+                                    </Button>
+                                    <span className="font-bold w-8 text-center">{quantity}</span>
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(q => q + 1)}>
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-auto pt-8">
+                             <Button onClick={handleCheckout} size="lg" className="w-full" disabled={isProcessing}>
+                                {isProcessing ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : 'Checkout'}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Right Section */}
+                    <div className="md:col-span-2 bg-muted/50 flex flex-col">
+                        <div className="relative aspect-video w-full rounded-tr-lg overflow-hidden">
+                             <Image
+                                src={event.imageUrl}
+                                alt={event.name}
+                                fill
+                                className="object-cover"
+                                data-ai-hint="event photo"
+                            />
+                        </div>
+                        <div className="p-8">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Order Summary</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Ticket ({quantity}x)</span>
+                                        <span>{event.price > 0 ? `$${((event.price / 100) * quantity).toFixed(2)}` : 'Free'}</span>
+                                    </div>
+                                    <Separator />
+                                    <div className="flex justify-between font-bold text-lg">
+                                        <span>Total</span>
+                                        <span>{event.price > 0 ? `$${price.toFixed(2)}` : 'Free'}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 export default function EventDetailsClient({
   eventId,
@@ -40,14 +155,44 @@ export default function EventDetailsClient({
   const { toast } = useToast();
   const { permissions } = useAuth();
   const [event, setEvent] = useState<ClubEvent | null>(null);
+  const [club, setClub] = useState<Club | null>(null);
+  const [myTickets, setMyTickets] = useState<TicketType[]>([]);
+  const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tldrHighlights, setTldrHighlights] = useState<string[]>([]);
+  const [isTldrLoading, setIsTldrLoading] = useState(false);
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventData = async () => {
       setIsLoading(true);
       try {
         const eventData = await getEvent(eventId);
+        const [clubData, ticketsData, ordersData] = await Promise.all([
+            getClub(eventData.clubId),
+            listMyTickets(),
+            listMyOrders()
+        ]);
+        
         setEvent(eventData);
+        setClub(clubData);
+        setMyTickets(ticketsData);
+        setMyOrders(ordersData);
+
+        // Once we have the event data, fetch the TLDR highlights
+        setIsTldrLoading(true);
+        summarizeEventTldr({ description: eventData.description })
+          .then(response => {
+              if (response?.highlights) {
+                setTldrHighlights(response.highlights);
+              }
+          })
+          .catch(err => {
+              console.error("Failed to get TLDR highlights", err);
+              // Fallback to default highlights if AI fails
+              setTldrHighlights(eventData.highlights || []);
+          })
+          .finally(() => setIsTldrLoading(false));
+
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -58,33 +203,45 @@ export default function EventDetailsClient({
         setIsLoading(false);
       }
     };
-    fetchEvent();
+    fetchEventData();
   }, [eventId, toast]);
 
-  const handleRsvpAction = async () => {
+  const handleCheckout = async (quantity: number) => {
     if (!event) return;
     try {
-      await rsvpEvent(event.id);
+      await rsvpEvent(event.id, quantity);
       toast({
-        title: 'RSVP Confirmed',
-        description: `You are now attending ${event.name}.`,
+        title: "You're going!",
+        description: `Your ticket for ${event.name} has been secured.`,
       });
-      setEvent({ ...event, viewerRsvpStatus: 'attending' });
+      // Refetch data to update UI correctly
+      const [eventData, ticketsData, ordersData] = await Promise.all([
+          getEvent(eventId),
+          listMyTickets(),
+          listMyOrders()
+      ]);
+      setEvent(eventData);
+      setMyTickets(ticketsData);
+      setMyOrders(ordersData);
+
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'RSVP Failed',
         description: 'Could not complete your RSVP. Please try again.',
       });
+       // Re-throw the error so the dialog knows the action failed.
+      throw error;
     }
   };
 
-  if (isLoading || !event) {
+  if (isLoading || !event || !club) {
     // TODO: Add skeleton
     return <div>Loading...</div>;
   }
 
-  const isAttending = event.viewerRsvpStatus === 'attending';
+  const isAttending = myTickets.some(t => t.event.id === eventId);
+  const relevantTicket = myTickets.find(t => t.event.id === eventId);
   const canRsvp = permissions.includes('action:rsvp');
   
   const getStatusBadgeVariant = (status: ClubEvent['status']) => {
@@ -151,7 +308,7 @@ export default function EventDetailsClient({
                     </CardHeader>
                     <CardContent>
                        <p className="font-medium">{event.location}</p>
-                       <a href="#" className="text-sm text-primary hover:underline">View on map</a>
+                       <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">View on map</a>
                     </CardContent>
                  </Card>
             </div>
@@ -161,14 +318,22 @@ export default function EventDetailsClient({
                     <CardTitle>Highlights</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-2 text-muted-foreground">
-                        {event.highlights?.map((highlight, index) => (
-                            <li key={index} className="flex items-center gap-2">
-                                <Dot className="text-primary" />
-                                <span>{highlight}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    {isTldrLoading ? (
+                      <div className="space-y-2">
+                         <Skeleton className="h-4 w-20" />
+                         <Skeleton className="h-4 w-24" />
+                         <Skeleton className="h-4 w-16" />
+                      </div>
+                    ) : (
+                      <ul className="space-y-2 text-muted-foreground">
+                          {tldrHighlights.map((highlight, index) => (
+                              <li key={index} className="flex items-center gap-2">
+                                  <Dot className="text-primary" />
+                                  <span>{highlight}</span>
+                              </li>
+                          ))}
+                      </ul>
+                    )}
                 </CardContent>
             </Card>
 
@@ -181,14 +346,6 @@ export default function EventDetailsClient({
               </CardHeader>
               <CardContent className="prose prose-stone dark:prose-invert max-w-none">
                 <p>{event.description}</p>
-                 <p>This is where a more detailed, media-rich description of the event would go. You can include paragraphs, lists, and even images or embedded videos to give attendees a comprehensive overview of what to expect.</p>
-                <p>For example, you could list:</p>
-                <ul>
-                    <li>Speaker bios</li>
-                    <li>Event schedule</li>
-                    <li>Sponsor information</li>
-                    <li>FAQs</li>
-                </ul>
               </CardContent>
             </Card>
             
@@ -197,10 +354,10 @@ export default function EventDetailsClient({
                     <CardTitle>Organized By</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Link href={`/clubs/${event.club.id}`} className="flex items-center gap-4 group">
-                        <Image src="https://placehold.co/100x100.png" alt={event.club.name} width={64} height={64} className="rounded-lg" data-ai-hint="club logo" />
+                    <Link href={`/clubs/${club.id}`} className="flex items-center gap-4 group">
+                        <Image src="https://placehold.co/100x100.png" alt={club.name} width={64} height={64} className="rounded-lg" data-ai-hint="club logo" />
                         <div>
-                            <h3 className="font-semibold text-lg group-hover:text-primary">{event.club.name}</h3>
+                            <h3 className="font-semibold text-lg group-hover:text-primary">{club.name}</h3>
                             <p className="text-muted-foreground">View Club Page</p>
                         </div>
                     </Link>
@@ -213,31 +370,27 @@ export default function EventDetailsClient({
           <div className="md:col-span-1 mt-6 md:mt-0">
             <div className="sticky top-[0.3rem]">
                <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                     {event.price > 0 ? `$${(event.price / 100).toFixed(2)}` : 'Free'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
+                <CardContent className="flex flex-col gap-4 pt-6 text-center">
+                    <p className="text-3xl font-bold">
+                      {event.price > 0 ? `$${(event.price / 100).toFixed(2)}` : 'Free'}
+                    </p>
                   {isAttending ? (
-                    <Button variant="outline" size="lg" disabled>
-                      <Check className="mr-2 h-4 w-4" />
-                      Attending
+                    <Button variant="outline" size="lg" asChild>
+                      <Link href={`/tickets/${relevantTicket?.id}`}>
+                        <Ticket className="mr-2 h-4 w-4" />
+                        See Tickets
+                      </Link>
                     </Button>
                   ) : (
                     canRsvp && (
-                      <Button size="lg" onClick={handleRsvpAction}>
-                        <Ticket className="mr-2 h-4 w-4" />
-                        RSVP Now
-                      </Button>
+                      <EventCheckoutDialog event={event} onConfirm={handleCheckout}>
+                          <Button size="lg">
+                            <Ticket className="mr-2 h-4 w-4" />
+                            {event.price > 0 ? `Buy Ticket` : 'Get Tickets'}
+                          </Button>
+                      </EventCheckoutDialog>
                     )
                   )}
-                   <div className="text-sm text-muted-foreground flex flex-col gap-2">
-                     <div className="flex items-center gap-2">
-                       <Users className="size-4" />
-                       <span>Hosted by <Link href={`/clubs/${event.club.id}`} className="font-medium text-foreground hover:underline">{event.club.name}</Link></span>
-                     </div>
-                   </div>
                 </CardContent>
               </Card>
             </div>
