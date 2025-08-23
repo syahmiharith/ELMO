@@ -389,7 +389,7 @@ _Add any hackathon awards, recognition, or notable achievements here_
 - **📚 Documentation:** [`SETUP-GUIDE.md`](./SETUP-GUIDE.md)
 - **🐛 Issues:** [GitHub Issues](https://github.com/syahmiharith/ELMO/issues)
 - **💬 Discussions:** [GitHub Discussions](https://github.com/syahmiharith/ELMO/discussions)
-- **📧 Contact:** [Add your contact information]
+- **📧 Contact:** [zsyhmizlkfli12@gmail.com]
 
 ---
 
