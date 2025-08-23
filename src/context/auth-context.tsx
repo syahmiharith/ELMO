@@ -6,8 +6,7 @@ import React, { createContext, useState, useContext, useMemo, useEffect, useCall
 import type { Role } from '@/lib/permissions';
 import { permissionsByRole } from '@/lib/permissions';
 import type { User } from '@/types/domain';
-import { MOCK_DATA } from '@/lib/mock-data';
-import { setCurrentUser } from '@/lib/mock-api';
+import { MOCK_USERS } from '@/lib/data/mock/users';
 
 interface AuthContextType {
   role: Role;
@@ -32,11 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setRole = useCallback((newRole: Role) => {
     const userId = USER_FOR_ROLE[newRole];
-    const newUser = MOCK_DATA.users.find(u => u.id === userId);
+    const newUser = MOCK_USERS.find(u => u.id === userId);
 
     if (newUser) {
       setUser(newUser);
-      setCurrentUser(newUser.id, newRole);
+      // Note: setCurrentUser functionality would need to be implemented if needed
       _setRole(newRole);
     } else {
       console.error(`User for role ${newRole} not found.`);
@@ -46,10 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Set the initial user based on the default role
     const initialUserId = USER_FOR_ROLE[role];
-    const initialUser = MOCK_DATA.users.find(u => u.id === initialUserId);
+    const initialUser = MOCK_USERS.find(u => u.id === initialUserId);
     if (initialUser) {
         setUser(initialUser);
-        setCurrentUser(initialUser.id, role);
+        // Note: setCurrentUser functionality would need to be implemented if needed
     }
     setIsLoading(false);
   }, []); // Run only once on mount

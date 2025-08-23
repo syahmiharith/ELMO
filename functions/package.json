@@ -2,13 +2,16 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build": "tsc --project tsconfig.dev.json",
+    "build:prod": "tsc",
+    "build:watch": "tsc --project tsconfig.dev.json --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "init:firestore:admin": "node -r ts-node/register init-firestore-admin.ts",
+    "update:users": "node -r ts-node/register update-users.ts"
   },
   "engines": {
     "node": "22"
@@ -29,6 +32,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.25.4",
     "firebase-functions-test": "^3.1.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "private": true

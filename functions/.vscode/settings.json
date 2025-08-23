@@ -1,0 +1,14 @@
+{
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.preferences.includeCompletionsForModuleExports": true,
+  "typescript.suggest.includeCompletionsForImportStatements": true,
+  "typescript.tsc.autoDetect": "on",
+  "files.exclude": {
+    "**/lib": true,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/lib": true,
+    "**/node_modules": true
+  }
+}

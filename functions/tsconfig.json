@@ -9,6 +9,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
+    "skipLibCheck": true,
     "paths": {
       "@elmo/shared-types": [
         "../shared/types"

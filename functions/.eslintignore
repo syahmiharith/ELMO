@@ -1,0 +1,25 @@
+# ESLint ignore file
+# Add files and directories you want ESLint to ignore
+
+# Build output
+lib/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Generated files
+generated/
+
+# Specific files
+**/*.min.js
+**/*.bundle.js
+
+# Test files (if you want to ignore them)
+# **/*.test.ts
+# **/*.spec.ts
+
+# Temporary files
+*.tmp
+*.temp

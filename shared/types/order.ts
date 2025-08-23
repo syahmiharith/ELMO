@@ -4,7 +4,7 @@
  * Defines interfaces and types related to orders and tickets.
  */
 
-import { AuditFields, FlexibleTimestamp } from './common';
+import { FlexibleTimestamp } from './common';
 
 /**
  * Common order status values

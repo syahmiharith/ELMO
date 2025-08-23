@@ -8,3 +8,22 @@ typings/
 # Node.js dependency directory
 node_modules/
 *.local
+
+# SENSITIVE FILES - Never commit these
+service-account-key.json
+*service-account*
+*private-key*
+firebase-adminsdk-*.json
+
+# Environment files
+.env*
+!.env.example
+
+# Build artifacts
+/lib
+/dist
+*.tsbuildinfo
+
+# Logs
+*.log
+firebase-debug.log*

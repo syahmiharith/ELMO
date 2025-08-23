@@ -117,5 +117,76 @@ service cloud.firestore {
         isOfficer(request.resource.data.clubId);
       allow delete: if isSuperAdmin() || isOfficer(resource.data.clubId);
     }
+
+    // ---- FEEDBACK ----
+    match /feedback/{feedbackId} {
+      allow read: if authed();
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ---- PROPOSALS ----
+    match /proposals/{proposalId} {
+      allow read: if authed();
+      allow create: if authed() && isOfficer(request.resource.data.clubId);
+      allow update: if isSuperAdmin() || isOfficer(resource.data.clubId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // ---- COMMENTS ----
+    match /comments/{commentId} {
+      allow read: if authed();
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+      allow update: if authed() && (
+        isSuperAdmin() ||
+        (request.auth.uid == resource.data.userId &&
+         request.resource.data.diff(resource.data).changedKeys().hasOnly(['content', 'updatedAt']))
+      );
+      allow delete: if authed() && (
+        isSuperAdmin() || request.auth.uid == resource.data.userId
+      );
+    }
+
+    // ---- ACTIVITY LOG ----
+    match /activity-log/{logId} {
+      allow read: if authed() && (
+        isSuperAdmin() || 
+        request.auth.uid == resource.data.userId ||
+        isOfficer(resource.data.clubId)
+      );
+      allow create, update, delete: if false; // Admin SDK only
+    }
+
+    // ---- POLICIES ----
+    match /policies/{policyId} {
+      allow read: if authed();
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // ---- POLICY ACCEPTANCES ----
+    match /policy-acceptances/{acceptanceId} {
+      allow read: if authed() && (
+        isSuperAdmin() || request.auth.uid == resource.data.userId
+      );
+      allow create: if authed() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---- FILES ----
+    match /files/{fileId} {
+      allow read: if authed();
+      allow create, update: if authed();
+      allow delete: if authed() && (
+        isSuperAdmin() || request.auth.uid == resource.data.uploadedBy
+      );
+    }
+
+    // ---- ANNOUNCEMENTS ----
+    match /announcements/{announcementId} {
+      allow read: if authed();
+      allow create: if authed() && isOfficer(request.resource.data.clubId);
+      allow update: if isSuperAdmin() || isOfficer(resource.data.clubId);
+      allow delete: if isSuperAdmin() || isOfficer(resource.data.clubId);
+    }
   }
 }

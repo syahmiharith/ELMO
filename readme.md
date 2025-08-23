@@ -117,6 +117,23 @@ firebase emulators:start
 - Access is governed by RBAC and Firestore security rules.
 - All critical actions are auditable; exports enable reporting and oversight.
 
+## 🔒 Security Notice for Public Repository
+
+**⚠️ IMPORTANT:** This repository is public and does NOT contain sensitive credentials:
+- **API Keys:** Not included (use `.env.local` with your own Firebase config)
+- **Service Account Keys:** Not included (use your own `service-account-key.json`)
+- **Private Keys:** All excluded via `.gitignore`
+
+**For Judges/Evaluators:**
+- See `SETUP-GUIDE.md` for complete setup instructions
+- Use demo mode: simply run `npm run dev` (no Firebase setup required)
+- For full functionality: set up your own Firebase project using the templates provided
+
+**For Contributors:**
+- Never commit `.env*` files or `service-account-key.json`
+- Use `.env.example` and `service-account-key.example.json` as templates
+- All sensitive files are properly excluded via `.gitignore`
+
 
 ## Contributing
 - PRs welcome. Please open an issue to discuss substantial changes or new modules.

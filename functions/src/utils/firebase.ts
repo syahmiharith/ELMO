@@ -1,28 +1,43 @@
 /**
- * @fileoverview Firebase initialization and global configuration.
- * This file sets up the Firebase Admin SDK and exports commonly used services.
+ * @fileoverview Firebase Admin SDK initialization and utilities
  */
 
-import { setGlobalOptions } from "firebase-functions/v2";
-import { initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
+import * as admin from 'firebase-admin';
+import { logger } from 'firebase-functions/v2';
 
 // Initialize Firebase Admin SDK
-const app = initializeApp();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
-// Set global options for Cloud Functions
-setGlobalOptions({
-    region: "asia-southeast1",
-    maxInstances: 10,
-    timeoutSeconds: 60,
-    memory: "256MiB"
-});
+// Export commonly used instances
+export const auth = admin.auth();
+export const db = admin.firestore();
+export const storage = admin.storage();
 
-// Export commonly used services
-export const db = getFirestore();
-export const auth = getAuth();
-export const storage = getStorage();
+// Firestore collections
+export const collections = {
+  users: 'users',
+  clubs: 'clubs',
+  events: 'events',
+  memberships: 'memberships',
+  orders: 'orders',
+  tickets: 'tickets',
+  feedback: 'feedback',
+  feedbackVotes: 'feedback-votes',
+  proposals: 'proposals',
+  comments: 'comments',
+  replies: 'replies',
+  activityLog: 'activity-log',
+  policies: 'policies',
+  policyAcceptances: 'policy-acceptances',
+  files: 'files',
+  announcements: 'announcements',
+} as const;
 
-export default app;
+// Helper functions
+export const getTimestamp = () => admin.firestore.Timestamp.now();
+export const getFieldValue = () => admin.firestore.FieldValue;
+
+export { logger };
+export default admin;

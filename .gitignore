@@ -12,6 +12,11 @@
 
 # testing
 /coverage
+test-*.ts
+test-*.js
+**/test-*
+**/mock/
+**/*mock*
 
 # next.js
 /.next/
@@ -39,8 +44,43 @@ yarn-error.log*
 next-env.d.ts
 
 .genkit/*
-.env*
 
-# firebase
+# Environment variables - CRITICAL FOR PUBLIC REPOS
+.env*
+!.env.example
+
+# Firebase
 firebase-debug.log
+firebase-debug.*.log
+**/firebase-debug.log
+
+# SENSITIVE - Never commit these to public repos
+**/service-account-key.json
+**/*service-account*
+**/*private-key*
+firebase-adminsdk-*.json
+
+# Development files
+backend-system-test.js
+**/lib/
+**/dist/
+
+# Temporary files
+*.tmp
+*.temp
+*temp*
+*cache*
+
+# Log files
+*.log
+
+# Editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
 firestore-debug.log
